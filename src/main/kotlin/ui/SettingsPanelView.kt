@@ -15,11 +15,11 @@ class SettingsPanelView : View() {
     }
 
     private fun chooseDirectory() {
-        val chooseDirectory = chooseDirectory {
+        val chosenDirectory = chooseDirectory {
             title = "Choose prints folder"
         }
-        if (chooseDirectory != null) {
-            UiProperties.changePrintsLocation(chooseDirectory)
+        if (chosenDirectory != null) {
+            UiProperties.changePrintsLocation(chosenDirectory)
         }
     }
 }

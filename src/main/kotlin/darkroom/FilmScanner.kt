@@ -1,18 +1,16 @@
 package darkroom
 
 import com.github.sarxos.webcam.Webcam
-import com.github.sarxos.webcam.ds.v4l4j.V4l4jDriver
+import driver.FilmScannerDriver
 import java.awt.Dimension
 import java.awt.image.BufferedImage
-import kotlin.NoSuchElementException
-
 
 object FilmScanner {
     private val scanResolution = Dimension(2592, 1944)
     private val previewResolution = Dimension(640, 480)
 
     init {
-        Webcam.setDriver(V4l4jDriver())
+        Webcam.setDriver(FilmScannerDriver())
     }
 
     private val filmScanner: Webcam = findFilmScanner()
@@ -33,21 +31,21 @@ object FilmScanner {
     fun scanInFullResolution(): BufferedImage {
         try {
             isScanning = true
-            filmScanner.close();
+            filmScanner.close()
 
             filmScanner.viewSize = scanResolution
             filmScanner.open()
 
             return filmScanner.image
         } finally {
-            filmScanner.close();
+            filmScanner.close()
             isScanning = false
         }
     }
 
     @Throws(NoSuchElementException::class)
     private fun findFilmScanner(): Webcam {
-        val webcams = Webcam.getWebcams();
+        val webcams = Webcam.getWebcams()
 
         return webcams.first {
             it.viewSizes.size == 2 && it.viewSizes.last() == scanResolution

@@ -1,6 +1,5 @@
 package darkroom
 
-import FilmTypes
 import java.io.File
 
 object PrintSettings {
