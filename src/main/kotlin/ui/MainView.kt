@@ -3,7 +3,7 @@ package ui
 import darkroom.Darkroom
 import tornadofx.*
 
-class MainView : View("Negative darkroom.Darkroom") {
+class MainView : View("Negative Darkroom") {
     override val root = borderpane {
         center {
             useMaxSize = true

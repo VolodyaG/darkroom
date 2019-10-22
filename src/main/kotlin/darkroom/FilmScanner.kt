@@ -16,7 +16,7 @@ object FilmScanner {
     }
 
     private val filmScanner: Webcam = findFilmScanner()
-    var isScanning = true
+    var isScanning = false
         private set
 
     fun getPreviewFrame(): BufferedImage {

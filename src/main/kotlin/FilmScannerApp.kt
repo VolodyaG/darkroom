@@ -1,4 +1,3 @@
-import com.guigarage.flatterfx.FlatterFX
 import javafx.application.Application
 import tornadofx.App
 import ui.MainView

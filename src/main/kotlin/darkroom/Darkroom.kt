@@ -29,6 +29,6 @@ object Darkroom {
     }
 
     private fun getPrintName(): String {
-        return "test${Math.random()}.png"
+        return "test${Math.random()}.png" // TODO: Replace with date
     }
 }
