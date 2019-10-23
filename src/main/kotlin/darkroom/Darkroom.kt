@@ -5,7 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 object Darkroom {
-    var isPrinting = false // TODO tip: Change to true for UI debug without scanner
+    var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
         val previewFrame = FilmScanner.getPreviewFrame()

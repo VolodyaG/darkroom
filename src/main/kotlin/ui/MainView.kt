@@ -10,7 +10,7 @@ class MainView : View("Negative Darkroom") {
             useMaxSize = true
             setPrefSize(640.0, 480.0)
 
-            imageview(ImageProcessingPreview) {
+            imageview(FilmPreview) {
                 fitHeightProperty().bind(parent.prefHeight(640.0).toProperty())
                 fitWidthProperty().bind(parent.prefWidth(480.0).toProperty())
             }
@@ -29,5 +29,8 @@ class MainView : View("Negative Darkroom") {
             }
         }
         right<SettingsPanelView>()
+        left{
+            imageview(HistogramChartsForFilm)
+        }
     }
 }
