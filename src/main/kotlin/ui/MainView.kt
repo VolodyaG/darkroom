@@ -4,10 +4,16 @@ import darkroom.Darkroom
 import tornadofx.*
 
 class MainView : View("Negative Darkroom") {
+
     override val root = borderpane {
         center {
             useMaxSize = true
-            imageview(FilmPreview)
+            setPrefSize(640.0, 480.0)
+
+            imageview(ImageProcessingPreview) {
+                fitHeightProperty().bind(parent.prefHeight(640.0).toProperty())
+                fitWidthProperty().bind(parent.prefWidth(480.0).toProperty())
+            }
         }
         bottom {
             button {
