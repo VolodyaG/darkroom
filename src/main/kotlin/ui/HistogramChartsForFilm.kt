@@ -20,6 +20,8 @@ object HistogramChartsForFilm : View() {
     private val greyHistogramView = SimpleObjectProperty<Image>()
 
     override val root = vbox {
+        prefWidth = 400.0
+
         imageview(colorHistogramView)
         imageview(greyHistogramView)
     }

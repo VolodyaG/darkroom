@@ -1,7 +1,6 @@
 import javafx.application.Application
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
-import javafx.scene.image.WritableImage
 import tornadofx.App
 import ui.MainView
 import ui.Styles

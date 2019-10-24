@@ -3,19 +3,23 @@ package ui
 import darkroom.Darkroom
 import tornadofx.*
 
-class MainView : View("Negative Darkroom") {
+class MainView : View("Darkroom") {
 
-    override val root = borderpane {
-        center {
-            useMaxSize = true
-            setPrefSize(640.0, 480.0)
+    override val root = gridpane {
+        hgap = 10.0
+        vgap = 10.0
+        padding = insets(10)
+        setMinSize(640.0 + 400.0 + 100.0, 580.0)
 
+        row {
+            add(HistogramChartsForFilm)
             imageview(FilmPreview) {
-                fitHeightProperty().bind(parent.prefHeight(640.0).toProperty())
-                fitWidthProperty().bind(parent.prefWidth(480.0).toProperty())
+                fitWidth = 640.0
+                isPreserveRatio = true
             }
+            add(SettingsPanelView())
         }
-        bottom {
+        row {
             button {
                 text = "Make a print!"
                 useMaxWidth = true
@@ -26,9 +30,10 @@ class MainView : View("Negative Darkroom") {
                         isDisable = false
                     }
                 }
+                gridpaneConstraints {
+                    columnSpan = 3
+                }
             }
         }
-        right<SettingsPanelView>()
-        left = HistogramChartsForFilm.root
     }
 }
