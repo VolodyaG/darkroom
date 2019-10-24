@@ -4,7 +4,7 @@ import darkroom.PrintSettings
 import javafx.beans.property.SimpleStringProperty
 import java.io.File
 
-object UiProperties {
+object SettingsPannelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 

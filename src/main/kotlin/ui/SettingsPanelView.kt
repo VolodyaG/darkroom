@@ -21,7 +21,7 @@ class SettingsPanelView : View() {
                     spacing = 5.0
                     alignment = Pos.CENTER_LEFT
 
-                    label(UiProperties.printsFolder)
+                    label(SettingsPannelProperties.printsFolder)
                     button("Prints Folder") {
                         action {
                             chooseDirectory()
@@ -74,7 +74,7 @@ class SettingsPanelView : View() {
             title = "Choose prints folder"
         }
         if (chosenDirectory != null) {
-            UiProperties.changePrintsLocation(chosenDirectory)
+            SettingsPannelProperties.changePrintsLocation(chosenDirectory)
         }
     }
 }

@@ -1,43 +1,32 @@
-package ui
+package ui.histograms
 
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
 import marvin.image.MarvinImage
 import marvin.statistic.MarvinHistogram
 import marvin.statistic.MarvinHistogramEntry
-import org.controlsfx.control.RangeSlider
 import toFxImage
-import tornadofx.*
+import tornadofx.runAsync
 import java.awt.Color
 import java.awt.image.BufferedImage
+import kotlin.math.roundToInt
 
 private const val histogramWidth = 400
 private const val histogramHeight = 200
 
-object HistogramChartsForFilm : View() {
-    private val colorHistogramView = SimpleObjectProperty<Image>()
-    private val greyHistogramView = SimpleObjectProperty<Image>()
-
-    override val root = vbox {
-        spacing = 5.0
-        prefWidth = 400.0
-
-        imageview(colorHistogramView)
-        slider()
-        slider()
-        slider()
-        imageview(greyHistogramView)
-        add(RangeSlider())
-        slider()
-    }
+object HistogramChartsForFilm {
+    val colorHistogramView = SimpleObjectProperty<Image>()
+    val greyHistogramView = SimpleObjectProperty<Image>()
 
     fun update(image: BufferedImage) {
+        val imageToAnalise = crop10PercentOfTheImage(image)
+
         runAsync(true) {
-            val grayHisto = getGrayscaleHistogram(MarvinImage(image)).toFxImage()
-            greyHistogramView.set(grayHisto)
+            val grayHisto = getGrayscaleHistogram(MarvinImage(imageToAnalise))
+            greyHistogramView.set(grayHisto.toFxImage())
         }
         runAsync(true) {
-            val colorHisto = getColorHistogram(MarvinImage(image))
+            val colorHisto = getColorHistogram(MarvinImage(imageToAnalise))
             colorHistogramView.set(colorHisto.toFxImage())
         }
     }
@@ -54,10 +43,13 @@ object HistogramChartsForFilm : View() {
             }
         }
 
+        println("max gray: px ${grayPixelsCounter.indexOf(grayPixelsCounter.max()!!)} value${grayPixelsCounter.max()}")
+
         for (i in 0 until 256) {
             val entry = createHistoEntry(Color.gray, i, grayPixelsCounter)
             histogram.addEntry(entry)
         }
+
         return histogram.getImage(histogramWidth, histogramHeight)
 
     }
@@ -68,15 +60,49 @@ object HistogramChartsForFilm : View() {
 
         val colorChannelsPixelsCounter = countPixelValuesInImage(image)
 
+        println(
+            "max red: `px` ${colorChannelsPixelsCounter.getValue(Color.red).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.red
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.red).max()}"
+        )
+        println(
+            "max green: px ${colorChannelsPixelsCounter.getValue(Color.green).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.green
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.green).max()}"
+        )
+        println(
+            "max blue: px ${colorChannelsPixelsCounter.getValue(Color.blue).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.blue
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.blue).max()}"
+        )
+
         (0..255).forEach {
 
-            val redEntry = createHistoEntry(Color.red, it, colorChannelsPixelsCounter.getValue(Color.red))
+            val redEntry = createHistoEntry(
+                Color.red,
+                it,
+                colorChannelsPixelsCounter.getValue(Color.red)
+            )
             histogram.addEntry(redEntry)
 
-            val greenEntry = createHistoEntry(Color.green, it, colorChannelsPixelsCounter.getValue(Color.green))
+            val greenEntry = createHistoEntry(
+                Color.green,
+                it,
+                colorChannelsPixelsCounter.getValue(Color.green)
+            )
             histogram.addEntry(greenEntry)
 
-            val blueEntry = createHistoEntry(Color.blue, it, colorChannelsPixelsCounter.getValue(Color.blue))
+            val blueEntry = createHistoEntry(
+                Color.blue,
+                it,
+                colorChannelsPixelsCounter.getValue(Color.blue)
+            )
             histogram.addEntry(blueEntry)
         }
 
@@ -130,5 +156,14 @@ object HistogramChartsForFilm : View() {
             Color.gray -> Color(value, value, value)
             else -> throw RuntimeException("Invalid color channel")
         }
+    }
+
+    private fun crop10PercentOfTheImage(image: BufferedImage): BufferedImage {
+        return image.getSubimage(
+            (image.width * 0.1).roundToInt(),
+            (image.height * 0.1).roundToInt(),
+            (image.width * 0.8).roundToInt(),
+            (image.height * 0.8).roundToInt()
+        )
     }
 }

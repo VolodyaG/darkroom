@@ -4,15 +4,11 @@ import darkroom.Darkroom
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
 import toFxImage
+import ui.histograms.HistogramChartsForFilm
 import java.awt.image.BufferedImage
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.concurrent.scheduleAtFixedRate
-
-private val debugImage = ImageIO.read(File("prints/02_long_10.png"));
 
 object FilmPreview : SimpleObjectProperty<Image>() {
     private val defaultProgressImage = ImageIO.read(javaClass.getResourceAsStream("/images/progress.gif"))
@@ -39,7 +35,6 @@ object FilmPreview : SimpleObjectProperty<Image>() {
             return defaultProgressImage
         }
 
-//        return Darkroom.makeTestPrint()
-        return debugImage
+        return Darkroom.makeTestPrint()
     }
 }

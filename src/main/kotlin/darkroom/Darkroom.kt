@@ -1,14 +1,20 @@
 package darkroom
 
+import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+
+
+private val debugImage = ImageIO.read(File("prints/02_long_10.png"));
 
 object Darkroom {
     var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
-        val previewFrame = FilmScanner.getPreviewFrame()
+//        val previewFrame = FilmScanner.getPreviewFrame()
+        val previewFrame = debugImage // TODO For debug without scanner
+
         return doImageProcessing(previewFrame)
     }
 
@@ -24,7 +30,16 @@ object Darkroom {
         }
     }
 
-    fun doImageProcessing(image: BufferedImage): BufferedImage {
+    private fun doImageProcessing(image: BufferedImage): BufferedImage {
+        val adjustedImage = doHistogramEqualization(image)
+        return adjustedImage
+    }
+
+    private fun doHistogramEqualization(image: BufferedImage): BufferedImage {
+        if (HistogramEqualizationProperties.redChannelAdjustment.value != 0.0) {
+            println("new red: ${HistogramEqualizationProperties.redChannelAdjustment.value}")
+        }
+
         return image
     }
 

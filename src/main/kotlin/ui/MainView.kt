@@ -2,6 +2,7 @@ package ui
 
 import darkroom.Darkroom
 import tornadofx.*
+import ui.histograms.HistogramPanelView
 
 class MainView : View("Darkroom") {
 
@@ -11,7 +12,7 @@ class MainView : View("Darkroom") {
         padding = insets(10)
 
         row {
-            add(HistogramChartsForFilm)
+            add(HistogramPanelView())
             imageview(FilmPreview) {
                 fitWidth = 640.0
                 isPreserveRatio = true
