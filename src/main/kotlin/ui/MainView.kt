@@ -29,8 +29,6 @@ class MainView : View("Negative Darkroom") {
             }
         }
         right<SettingsPanelView>()
-        left{
-            imageview(HistogramChartsForFilm)
-        }
+        left = HistogramChartsForFilm.root
     }
 }

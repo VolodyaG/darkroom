@@ -1,7 +1,7 @@
 package darkroom
 
 enum class FilmTypes(displayName: String) {
-    NEGATIVE("Negative"),
+    COLOR_NEGATIVE("Color Negative"),
     BLACK_AND_WHITE("Black and White"),
     POSITIVE("Positive")
 }

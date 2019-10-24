@@ -6,16 +6,53 @@ import marvin.image.MarvinImage
 import marvin.statistic.MarvinHistogram
 import marvin.statistic.MarvinHistogramEntry
 import toFxImage
+import tornadofx.View
+import tornadofx.imageview
+import tornadofx.vbox
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-object HistogramChartsForFilm : SimpleObjectProperty<Image>() {
-    private const val histogramWidth = 400
-    private const val histogramHeight = 200
+private const val histogramWidth = 400
+private const val histogramHeight = 200
+
+object HistogramChartsForFilm : View() {
+    private val colorHistogramView = SimpleObjectProperty<Image>()
+    private val greyHistogramView = SimpleObjectProperty<Image>()
+
+    override val root = vbox {
+        imageview(colorHistogramView)
+        imageview(greyHistogramView)
+    }
 
     fun update(image: BufferedImage) {
-        val histogram = getColorHistogram(MarvinImage(image))
-        set(histogram.toFxImage())
+        runAsync(true) {
+            val grayHisto = getGrayscaleHistogram(MarvinImage(image)).toFxImage()
+            greyHistogramView.set(grayHisto)
+        }
+        runAsync(true) {
+            val colorHisto = getColorHistogram(MarvinImage(image))
+            colorHistogramView.set(colorHisto.toFxImage())
+        }
+    }
+
+    private fun getGrayscaleHistogram(image: MarvinImage): BufferedImage {
+        val histogram = MarvinHistogram("Gray Intensity")
+        histogram.barWidth = 1
+
+        val grayPixelsCounter = IntArray(256)
+
+        for (x in 0 until image.width) {
+            for (y in 0 until image.height) {
+                grayPixelsCounter[image.getIntComponent0(x, y)]++
+            }
+        }
+
+        for (i in 0 until 256) {
+            val entry = createHistoEntry(Color.gray, i, grayPixelsCounter)
+            histogram.addEntry(entry)
+        }
+        return histogram.getImage(histogramWidth, histogramHeight)
+
     }
 
     private fun getColorHistogram(image: MarvinImage): BufferedImage {
@@ -83,6 +120,7 @@ object HistogramChartsForFilm : SimpleObjectProperty<Image>() {
             Color.red -> Color(value, 0, 0)
             Color.green -> Color(0, value, 0)
             Color.blue -> Color(0, 0, value)
+            Color.gray -> Color(value, value, value)
             else -> throw RuntimeException("Invalid color channel")
         }
     }
