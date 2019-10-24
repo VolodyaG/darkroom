@@ -9,7 +9,6 @@ class MainView : View("Darkroom") {
         hgap = 10.0
         vgap = 10.0
         padding = insets(10)
-        setMinSize(640.0 + 400.0 + 100.0, 580.0)
 
         row {
             add(HistogramChartsForFilm)

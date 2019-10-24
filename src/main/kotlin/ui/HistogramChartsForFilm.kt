@@ -5,10 +5,9 @@ import javafx.scene.image.Image
 import marvin.image.MarvinImage
 import marvin.statistic.MarvinHistogram
 import marvin.statistic.MarvinHistogramEntry
+import org.controlsfx.control.RangeSlider
 import toFxImage
-import tornadofx.View
-import tornadofx.imageview
-import tornadofx.vbox
+import tornadofx.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 
@@ -24,7 +23,12 @@ object HistogramChartsForFilm : View() {
         prefWidth = 400.0
 
         imageview(colorHistogramView)
+        slider()
+        slider()
+        slider()
         imageview(greyHistogramView)
+        add(RangeSlider())
+        slider()
     }
 
     fun update(image: BufferedImage) {
