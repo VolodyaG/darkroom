@@ -13,5 +13,9 @@ class Styles: Stylesheet() {
             fontWeight = FontWeight.BOLD
             backgroundColor += c("#cecece")
         }
+
+        button {
+            fontSize = 16.px
+        }
     }
 }
