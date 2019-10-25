@@ -29,7 +29,6 @@ fun BufferedImage.toFxImage(): Image {
 * ToDo features list
 * Bypass button
 * Preview/Processing
-* Magnifier button
 * Grayscale gradient
 * Presets?
 *
