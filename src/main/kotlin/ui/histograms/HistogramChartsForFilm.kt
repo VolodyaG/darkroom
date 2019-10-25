@@ -1,5 +1,6 @@
 package ui.histograms
 
+import convertToGrayScale
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
 import marvin.image.MarvinImage
@@ -19,14 +20,14 @@ object HistogramChartsForFilm {
     val greyHistogramView = SimpleObjectProperty<Image>()
 
     fun update(image: BufferedImage) {
-        val imageToAnalise = crop10PercentOfTheImage(image)
+        val regionToAnalise = MarvinImage(crop10PercentOfTheImage(image))
 
         runAsync(true) {
-            val grayHisto = getGrayscaleHistogram(MarvinImage(imageToAnalise))
+            val grayHisto = getGrayscaleHistogram(regionToAnalise.convertToGrayScale())
             greyHistogramView.set(grayHisto.toFxImage())
         }
         runAsync(true) {
-            val colorHisto = getColorHistogram(MarvinImage(imageToAnalise))
+            val colorHisto = getColorHistogram(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
         }
     }
@@ -43,7 +44,7 @@ object HistogramChartsForFilm {
             }
         }
 
-        println("max gray: px ${grayPixelsCounter.indexOf(grayPixelsCounter.max()!!)} value${grayPixelsCounter.max()}")
+//        println("max gray: px ${grayPixelsCounter.indexOf(grayPixelsCounter.max()!!)} value${grayPixelsCounter.max()}")
 
         for (i in 0 until 256) {
             val entry = createHistoEntry(Color.gray, i, grayPixelsCounter)
@@ -59,28 +60,7 @@ object HistogramChartsForFilm {
         histogram.barWidth = 1
 
         val colorChannelsPixelsCounter = countPixelValuesInImage(image)
-
-        println(
-            "max red: px ${colorChannelsPixelsCounter.getValue(Color.red).indexOf(
-                colorChannelsPixelsCounter.getValue(
-                    Color.red
-                ).max()!!
-            )} value${colorChannelsPixelsCounter.getValue(Color.red).max()}"
-        )
-        println(
-            "max green: px ${colorChannelsPixelsCounter.getValue(Color.green).indexOf(
-                colorChannelsPixelsCounter.getValue(
-                    Color.green
-                ).max()!!
-            )} value${colorChannelsPixelsCounter.getValue(Color.green).max()}"
-        )
-        println(
-            "max blue: px ${colorChannelsPixelsCounter.getValue(Color.blue).indexOf(
-                colorChannelsPixelsCounter.getValue(
-                    Color.blue
-                ).max()!!
-            )} value${colorChannelsPixelsCounter.getValue(Color.blue).max()}"
-        )
+//        printMaxValues(colorChannelsPixelsCounter)
 
         (0..255).forEach {
 
@@ -131,10 +111,12 @@ object HistogramChartsForFilm {
     }
 
     private fun createHistoEntry(color: Color, pixelValue: Int, pixelsCounter: IntArray): MarvinHistogramEntry {
+        val entryColor = if (pixelValue > 230) 230 else if (pixelValue < 30) 30 else pixelValue
+
         return MarvinHistogramEntry(
             pixelValue.toDouble(),
             pixelsCounter[pixelValue].toDouble(),
-            getRgbColorForSingleChannelPixel(color, pixelValue)
+            getRgbColorForSingleChannelPixel(color, entryColor)
         )
     }
 
@@ -164,6 +146,30 @@ object HistogramChartsForFilm {
             (image.height * 0.1).roundToInt(),
             (image.width * 0.8).roundToInt(),
             (image.height * 0.8).roundToInt()
+        )
+    }
+
+    private fun printMaxValues(colorChannelsPixelsCounter: Map<Color, IntArray>) { // ToDo delete. Just for debug
+        println(
+            "max red: px ${colorChannelsPixelsCounter.getValue(Color.red).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.red
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.red).max()}"
+        )
+        println(
+            "max green: px ${colorChannelsPixelsCounter.getValue(Color.green).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.green
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.green).max()}"
+        )
+        println(
+            "max blue: px ${colorChannelsPixelsCounter.getValue(Color.blue).indexOf(
+                colorChannelsPixelsCounter.getValue(
+                    Color.blue
+                ).max()!!
+            )} value${colorChannelsPixelsCounter.getValue(Color.blue).max()}"
         )
     }
 }

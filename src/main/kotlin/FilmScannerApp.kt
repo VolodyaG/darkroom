@@ -24,3 +24,13 @@ fun main(args: Array<String>) {
 fun BufferedImage.toFxImage(): Image {
     return SwingFXUtils.toFXImage(this, null)
 }
+
+/*
+* ToDo features list
+* Bypass button
+* Preview/Processing
+* Magnifier button
+* Grayscale gradient
+* Presets?
+*
+* */

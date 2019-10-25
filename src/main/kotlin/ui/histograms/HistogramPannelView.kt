@@ -13,20 +13,24 @@ class HistogramPanelView : View() {
 
         imageview(HistogramChartsForFilm.colorHistogramView)
 
-        add(createSliderForColorChannel(HistogramEqualizationProperties.redChannelAdjustment))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.blueChannelAdjustment))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.greenChannelAdjustment))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.redChannelAdjustment, "Red"))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.greenChannelAdjustment, "Green"))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.blueChannelAdjustment, "Blue"))
 
         imageview(HistogramChartsForFilm.greyHistogramView)
         add(RangeSlider(0.0, 255.0, 0.0, 255.0))
         slider()
     }
 
-    private fun createSliderForColorChannel(channelProperty: SimpleObjectProperty<Number>): HBox {
+    private fun createSliderForColorChannel(channelProperty: SimpleObjectProperty<Number>, label: String): HBox {
         return hbox {
-            val colorChannelSlider = slider(-100.0, 100.0) {
+            label(label) {
+                prefWidth = 40.0
+            }
+            val colorChannelSlider = slider(-50.0, 50.0) {
                 useMaxWidth = true
-                prefWidth = 350.0
+                prefWidth = 310.0
+                // Todo inc by 1
             }
             colorChannelSlider.valueProperty().bindBidirectional(channelProperty)
             val input = textfield {

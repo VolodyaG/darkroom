@@ -1,6 +1,8 @@
 package darkroom
 
+import convertToGrayScale
 import marvin.image.MarvinImage
+import org.marvinproject.image.color.colorChannel.ColorChannel
 import org.marvinproject.image.color.invert.Invert
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramEqualizationProperties
@@ -35,19 +37,24 @@ object Darkroom {
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
         var adjustedImage: BufferedImage
 
-        when (SettingsPannelProperties.filmType.value) {
+        when (SettingsPannelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
                 adjustedImage = invertNegativeImage(image)
+                adjustedImage = doColorChannelsEqualization(adjustedImage)
+                adjustedImage = MarvinImage(adjustedImage).convertToGrayScale().bufferedImage
+                adjustedImage = doLuminosityEqualization(adjustedImage)
             }
             FilmTypes.COLOR_NEGATIVE -> {
                 adjustedImage = invertNegativeImage(image)
+                adjustedImage = doLuminosityEqualization(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
-                adjustedImage = image
+                adjustedImage = doLuminosityEqualization(image)
+                adjustedImage = doColorChannelsEqualization(adjustedImage)
             }
         }
 
-        adjustedImage = doHistogramEqualization(adjustedImage)
 
         return adjustedImage
     }
@@ -59,12 +66,23 @@ object Darkroom {
         return inImage.bufferedImage;
     }
 
-    private fun doHistogramEqualization(image: BufferedImage): BufferedImage {
-        if (HistogramEqualizationProperties.redChannelAdjustment.value != 0.0) {
-            println("new red: ${HistogramEqualizationProperties.redChannelAdjustment.value}")
-        }
-
+    private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
         return image
+    }
+
+    private fun doColorChannelsEqualization(image: BufferedImage): BufferedImage {
+        val adjustmentPlugin = ColorChannel()
+
+        adjustmentPlugin.setAttributes(
+            "red", HistogramEqualizationProperties.redChannelAdjustment.value.toInt(),
+            "green", HistogramEqualizationProperties.greenChannelAdjustment.value.toInt(),
+            "blue", HistogramEqualizationProperties.blueChannelAdjustment.value.toInt()
+        )
+
+        val adjustedImage = MarvinImage(image)
+        adjustmentPlugin.process(adjustedImage, adjustedImage)
+        adjustedImage.update()
+        return adjustedImage.bufferedImage
     }
 
     private fun getPrintName(): String {
