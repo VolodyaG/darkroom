@@ -6,40 +6,48 @@ import java.awt.Dimension
 import java.awt.image.BufferedImage
 
 object FilmScanner {
-    private val scanResolution = Dimension(2592, 1944)
-    private val previewResolution = Dimension(640, 480)
-
     init {
         Webcam.setDriver(FilmScannerDriver())
     }
 
+    private val fullScanResolution = Dimension(2592, 1944)
+    private val previewResolution = Dimension(640, 480)
     private val filmScanner: Webcam = findFilmScanner()
-    var isScanning = false
-        private set
+
+    private var scanningForNewImageNow = false
+    private var fetchedFrame: BufferedImage? = null
 
     fun getPreviewFrame(): BufferedImage {
-        check(!isScanning) { "Cannot get preview image right now" }
-
-        if (!filmScanner.isOpen) {
-            filmScanner.viewSize = previewResolution
-            filmScanner.open()
-        }
-
-        return filmScanner.image
+        return scanImage(previewResolution)
     }
 
     fun scanInFullResolution(): BufferedImage {
+        return scanImage(fullScanResolution)
+    }
+
+    private fun scanImage(resolution: Dimension): BufferedImage {
+        if (scanningForNewImageNow && fetchedFrame != null) {
+            return fetchedFrame!!
+        }
+
         try {
-            isScanning = true
-            filmScanner.close()
+            scanningForNewImageNow = true
 
-            filmScanner.viewSize = scanResolution
-            filmScanner.open()
+            if (!filmScanner.isOpen) {
+                filmScanner.viewSize = resolution
+                filmScanner.open()
+            }
 
-            return filmScanner.image
+            if (filmScanner.viewSize != resolution) {
+                filmScanner.close()
+                filmScanner.viewSize = fullScanResolution
+                filmScanner.open()
+            }
+
+            fetchedFrame = filmScanner.image
+            return fetchedFrame!!
         } finally {
-            filmScanner.close()
-            isScanning = false
+            scanningForNewImageNow = false
         }
     }
 
@@ -48,7 +56,7 @@ object FilmScanner {
         val webcams = Webcam.getWebcams()
 
         return webcams.first {
-            it.viewSizes.size == 2 && it.viewSizes.last() == scanResolution
+            it.viewSizes.size == 2 && it.viewSizes.last() == fullScanResolution
         }
     }
 }

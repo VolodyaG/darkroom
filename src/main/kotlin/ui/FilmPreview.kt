@@ -25,7 +25,6 @@ object FilmPreview : SimpleObjectProperty<Image>() {
             val newFrame = getPreviewFrame()
             if (currentFrame != newFrame) {
                 currentFrame = newFrame
-                HistogramChartsForFilm.update(currentFrame)
             }
         }
     }

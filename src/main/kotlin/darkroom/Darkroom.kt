@@ -5,6 +5,7 @@ import marvin.image.MarvinImage
 import org.marvinproject.image.color.colorChannel.ColorChannel
 import org.marvinproject.image.color.invert.Invert
 import ui.SettingsPannelProperties
+import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
 import java.io.File
@@ -16,7 +17,7 @@ object Darkroom {
     var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
-//        val previewFrame = FilmScanner.getPreviewFrame()
+//        val previewFrame = FilmScanner.scanInFullResolution()
         val previewFrame = debugImage // TODO For debug without scanner
 
         return doImageProcessing(previewFrame)
@@ -35,42 +36,41 @@ object Darkroom {
     }
 
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
-        var adjustedImage: BufferedImage
+        var adjustedImage = MarvinImage(image)
 
         when (SettingsPannelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
-                adjustedImage = invertNegativeImage(image)
-                adjustedImage = doColorChannelsEqualization(adjustedImage)
-                adjustedImage = MarvinImage(adjustedImage).convertToGrayScale().bufferedImage
-                adjustedImage = doLuminosityEqualization(adjustedImage)
+                invertNegativeImage(adjustedImage)
+                val colorfulImage = doColorChannelsEqualization(adjustedImage)
+                adjustedImage = colorfulImage.convertToGrayScale()
+                doLuminosityEqualization(adjustedImage)
+                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
             }
             FilmTypes.COLOR_NEGATIVE -> {
-                adjustedImage = invertNegativeImage(image)
-                adjustedImage = doLuminosityEqualization(adjustedImage)
+                invertNegativeImage(adjustedImage)
                 adjustedImage = doColorChannelsEqualization(adjustedImage)
+                doLuminosityEqualization(adjustedImage)
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
-                adjustedImage = doLuminosityEqualization(image)
                 adjustedImage = doColorChannelsEqualization(adjustedImage)
+                doLuminosityEqualization(adjustedImage)
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
         }
 
-
-        return adjustedImage
+        return adjustedImage.bufferedImage
     }
 
-    private fun invertNegativeImage(image: BufferedImage): BufferedImage {
-        val inImage = MarvinImage(image)
-        Invert().process(inImage, inImage)
-        inImage.update()
-        return inImage.bufferedImage;
+    private fun invertNegativeImage(image: MarvinImage) {
+        Invert().process(image, image)
+        image.update()
     }
 
-    private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
-        return image
+    private fun doLuminosityEqualization(image: MarvinImage) {
     }
 
-    private fun doColorChannelsEqualization(image: BufferedImage): BufferedImage {
+    private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {
         val adjustmentPlugin = ColorChannel()
 
         adjustmentPlugin.setAttributes(
@@ -79,10 +79,10 @@ object Darkroom {
             "blue", HistogramEqualizationProperties.blueChannelAdjustment.value.toInt()
         )
 
-        val adjustedImage = MarvinImage(image)
-        adjustmentPlugin.process(adjustedImage, adjustedImage)
+        val adjustedImage = MarvinImage(image.width, image.height)
+        adjustmentPlugin.process(image, adjustedImage)
         adjustedImage.update()
-        return adjustedImage.bufferedImage
+        return adjustedImage
     }
 
     private fun getPrintName(): String {
