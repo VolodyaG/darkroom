@@ -2,7 +2,6 @@ package ui.histograms
 
 import convertToGrayScale
 import javafx.beans.property.SimpleObjectProperty
-import javafx.concurrent.Task
 import javafx.scene.image.Image
 import marvin.image.MarvinImage
 import marvin.statistic.MarvinHistogram
@@ -11,7 +10,6 @@ import toFxImage
 import tornadofx.runAsync
 import java.awt.Color
 import java.awt.image.BufferedImage
-import java.util.*
 import kotlin.math.roundToInt
 
 private const val histogramWidth = 400
@@ -21,19 +19,14 @@ object HistogramChartsForFilm {
     val colorHistogramView = SimpleObjectProperty<Image>()
     val greyHistogramView = SimpleObjectProperty<Image>()
 
-    var grayHistoTask: Task<Unit> = runAsync { }
-    var colorHistoTask: Task<Unit> = runAsync { }
-
     fun buildHistogramsForBlackAndWhiteFilm(grayImage: MarvinImage, colorImage: MarvinImage) {
-        grayHistoTask.cancel()
-        grayHistoTask = runAsync(true) {
+        runAsync(true) {
             val regionToAnalise = crop10PercentOfTheImage(grayImage)
             val grayHisto = getGrayscaleHistogram(regionToAnalise)
             greyHistogramView.set(grayHisto.toFxImage())
         }
 
-        colorHistoTask.cancel()
-        colorHistoTask = runAsync(true) {
+        runAsync(true) {
             val regionToAnalise = crop10PercentOfTheImage(colorImage)
             val colorHisto = getColorHistogram(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
@@ -43,20 +36,14 @@ object HistogramChartsForFilm {
     fun buildHistogramsForColorfulFilm(image: MarvinImage) {
         val regionToAnalise = crop10PercentOfTheImage(image)
 
-//        grayHistoTask.cancel()
-        grayHistoTask = runAsync(true) {
-            val date = Date()
+        runAsync(true) {
             val grayHisto = getGrayscaleHistogram(regionToAnalise.convertToGrayScale())
             greyHistogramView.set(grayHisto.toFxImage())
-            println("gray builded ${Date().time - date.time}")
         }
 
-//        colorHistoTask.cancel()
-        colorHistoTask = runAsync(true) {
-            val date = Date()
+        runAsync(true) {
             val colorHisto = getColorHistogram(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
-            println("color builded ${Date().time - date.time}")
         }
     }
 
