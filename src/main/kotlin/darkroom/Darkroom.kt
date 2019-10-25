@@ -1,10 +1,12 @@
 package darkroom
 
+import marvin.image.MarvinImage
+import org.marvinproject.image.color.invert.Invert
+import ui.SettingsPannelProperties
 import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
-
 
 private val debugImage = ImageIO.read(File("prints/02_long_10.png"));
 
@@ -31,8 +33,30 @@ object Darkroom {
     }
 
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
-        val adjustedImage = doHistogramEqualization(image)
+        var adjustedImage: BufferedImage
+
+        when (SettingsPannelProperties.filmType.value) {
+            FilmTypes.BLACK_AND_WHITE -> {
+                adjustedImage = invertNegativeImage(image)
+            }
+            FilmTypes.COLOR_NEGATIVE -> {
+                adjustedImage = invertNegativeImage(image)
+            }
+            FilmTypes.POSITIVE -> {
+                adjustedImage = image
+            }
+        }
+
+        adjustedImage = doHistogramEqualization(adjustedImage)
+
         return adjustedImage
+    }
+
+    private fun invertNegativeImage(image: BufferedImage): BufferedImage {
+        val inImage = MarvinImage(image)
+        Invert().process(inImage, inImage)
+        inImage.update()
+        return inImage.bufferedImage;
     }
 
     private fun doHistogramEqualization(image: BufferedImage): BufferedImage {

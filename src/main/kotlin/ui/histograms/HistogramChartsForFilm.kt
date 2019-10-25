@@ -61,7 +61,7 @@ object HistogramChartsForFilm {
         val colorChannelsPixelsCounter = countPixelValuesInImage(image)
 
         println(
-            "max red: `px` ${colorChannelsPixelsCounter.getValue(Color.red).indexOf(
+            "max red: px ${colorChannelsPixelsCounter.getValue(Color.red).indexOf(
                 colorChannelsPixelsCounter.getValue(
                     Color.red
                 ).max()!!

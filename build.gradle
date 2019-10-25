@@ -44,8 +44,8 @@ dependencies {
     compile group: 'com.guigarage', name: 'flatter', version: '0.7'
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
 
-    compile group: 'com.github.downgoon', name: 'MarvinPlugins', version: '1.5.5'
     compile group: 'com.github.downgoon', name: 'MarvinFramework', version: '1.5.5'
+    compile group: 'com.github.downgoon', name: 'MarvinPlugins', version: '1.5.5'
 }
 
 compileKotlin {

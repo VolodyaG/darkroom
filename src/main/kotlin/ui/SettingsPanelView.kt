@@ -3,8 +3,10 @@ package ui
 import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.binding.Bindings
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
+import javafx.util.StringConverter
 import tornadofx.*
 
 class SettingsPanelView : View() {
@@ -69,6 +71,14 @@ class SettingsPanelView : View() {
         }
     }
 
+    init {
+        Bindings.bindBidirectional(
+            toggleGroup.selectedValueProperty<String>(),
+            SettingsPannelProperties.filmType,
+            FilmTypeStringConverter()
+        )
+    }
+
     private fun chooseDirectory() {
         val chosenDirectory = chooseDirectory {
             title = "Choose prints folder"
@@ -76,5 +86,15 @@ class SettingsPanelView : View() {
         if (chosenDirectory != null) {
             SettingsPannelProperties.changePrintsLocation(chosenDirectory)
         }
+    }
+}
+
+class FilmTypeStringConverter : StringConverter<FilmTypes>() {
+    override fun toString(filmType: FilmTypes): String {
+        return filmType.displayName
+    }
+
+    override fun fromString(string: String): FilmTypes {
+        return FilmTypes.fromString(string)
     }
 }
