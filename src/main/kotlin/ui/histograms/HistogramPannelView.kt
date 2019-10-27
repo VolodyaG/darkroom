@@ -1,42 +1,58 @@
 package ui.histograms
 
 import javafx.beans.property.SimpleObjectProperty
-import javafx.scene.layout.HBox
+import javafx.geometry.Pos
+import javafx.scene.layout.VBox
 import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
 import tornadofx.*
+import ui.FILM_PREVIEW_WINDOW_HEIGHT
+import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
 
 class HistogramPanelView : View() {
     override val root = vbox {
         spacing = 5.0
-        prefWidth = 400.0
+        prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
+        prefHeight = FILM_PREVIEW_WINDOW_HEIGHT
 
         imageview(HistogramChartsForFilm.colorHistogramView)
 
-        add(createSliderForColorChannel(HistogramEqualizationProperties.redChannelAdjustment, "Red"))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.greenChannelAdjustment, "Green"))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.blueChannelAdjustment, "Blue"))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.redChannelAdjustment, "Cyan", "Red"))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.greenChannelAdjustment, "Magenta", "Green"))
+        add(createSliderForColorChannel(HistogramEqualizationProperties.blueChannelAdjustment, "Yellow", "Blue"))
 
         imageview(HistogramChartsForFilm.greyHistogramView)
         add(RangeSlider(0.0, 255.0, 0.0, 255.0))
         slider()
     }
 
-    private fun createSliderForColorChannel(channelProperty: SimpleObjectProperty<Number>, label: String): HBox {
-        return hbox {
-            label(label) {
-                prefWidth = 40.0
+    private fun createSliderForColorChannel(
+        channelProperty: SimpleObjectProperty<Number>,
+        leftLabel: String,
+        rightLabel: String
+    ): VBox {
+        val textInputWidth = 50.0
+        return vbox {
+            hbox {
+                label(leftLabel) {
+                    textFill = c(leftLabel).darker()
+                }
+                label(rightLabel) {
+                    textFill = c(rightLabel)
+                }
             }
-            val colorChannelSlider = slider(-50.0, 50.0) {
-                useMaxWidth = true
-                prefWidth = 310.0
-                // Todo inc by 1
+            hbox {
+                val colorChannelSlider = slider(-50.0, 50.0) {
+                    useMaxWidth = true
+                    prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
+                    // Todo inc by 1
+                }
+                colorChannelSlider.valueProperty().bindBidirectional(channelProperty)
+                val input = textfield {
+                    maxWidth = textInputWidth
+                }
+                input.bind(colorChannelSlider.valueProperty(), false, NumberStringConverter())
             }
-            colorChannelSlider.valueProperty().bindBidirectional(channelProperty)
-            val input = textfield {
-                maxWidth = 50.0
-            }
-            input.bind(colorChannelSlider.valueProperty(), false, NumberStringConverter())
         }
     }
 

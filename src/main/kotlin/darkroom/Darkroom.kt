@@ -59,6 +59,8 @@ object Darkroom {
             }
         }
 
+        adjustBrightnessAndContrast(adjustedImage)
+
         return adjustedImage.bufferedImage
     }
 
@@ -68,6 +70,9 @@ object Darkroom {
     }
 
     private fun doLuminosityEqualization(image: MarvinImage) {
+    }
+
+    private fun adjustBrightnessAndContrast(image: MarvinImage) {
     }
 
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {

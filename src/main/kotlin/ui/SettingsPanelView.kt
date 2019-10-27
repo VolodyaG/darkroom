@@ -14,6 +14,7 @@ class SettingsPanelView : View() {
 
     override val root = squeezebox {
         fillHeight = false
+        prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
 
         fold("Save options", expanded = true) {
             vbox {

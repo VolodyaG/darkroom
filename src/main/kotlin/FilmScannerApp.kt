@@ -3,6 +3,8 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import tornadofx.App
+import ui.FILM_PREVIEW_WINDOW_WIDTH
+import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
 import ui.MainView
 import ui.Styles
 import java.awt.image.BufferedImage
@@ -10,8 +12,9 @@ import java.awt.image.BufferedImage
 class MyApp : App(MainView::class, Styles::class) {
     override fun start(stage: Stage) {
         with(stage) {
-            minWidth = 640.0 + 400.0 + 200.0
-            minHeight = 585.0
+            minWidth = FILM_PREVIEW_WINDOW_WIDTH + LEFT_AND_RIGHT_WINDOWS_WIDTH * 2
+            minHeight = FILM_PREVIEW_WINDOW_WIDTH
+            isFullScreen = false
             super.start(this)
         }
     }

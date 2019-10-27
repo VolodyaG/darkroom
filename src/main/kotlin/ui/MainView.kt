@@ -11,11 +11,12 @@ import ui.histograms.HistogramPanelView
 
 class MainView : View("Darkroom") {
     private val mainImageView = imageview(FilmPreview) {
-        fitWidth = 640.0
+        fitWidth = FILM_PREVIEW_WINDOW_WIDTH
+        fitHeight = FILM_PREVIEW_WINDOW_HEIGHT
         isPreserveRatio = true
 
         gridpaneConstraints {
-            vAlignment = VPos.TOP
+            vAlignment = VPos.CENTER
         }
     }
     private val magnifiedImageView = imageview()

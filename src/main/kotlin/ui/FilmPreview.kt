@@ -4,7 +4,6 @@ import darkroom.Darkroom
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
 import toFxImage
-import ui.histograms.HistogramChartsForFilm
 import java.awt.image.BufferedImage
 import java.util.*
 import javax.imageio.ImageIO

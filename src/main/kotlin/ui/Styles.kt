@@ -1,11 +1,8 @@
 package ui
 
-import com.guigarage.flatterfx.FlatterFX
-import javafx.scene.text.FontWeight
-import tornadofx.*
+import tornadofx.Stylesheet
 
-class Styles: Stylesheet() {
+class Styles : Stylesheet() {
     init {
-//        FlatterFX.style()
     }
 }
