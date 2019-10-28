@@ -6,7 +6,9 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.Priority
 import javafx.util.StringConverter
+import javafx.util.converter.NumberStringConverter
 import tornadofx.*
 
 class SettingsPanelView : View() {
@@ -59,9 +61,31 @@ class SettingsPanelView : View() {
         }
         fold("Adjust Color", expanded = true) {
             label("Contrast")
-            slider()
+            hbox {
+                slider(-127, 127) {
+                    useMaxWidth = true
+                    hgrow = Priority.ALWAYS
+                    valueProperty().bindBidirectional(SettingsPannelProperties.contrast)
+                }
+                textfield {
+                    prefWidth = 50.0
+                    hgrow = Priority.NEVER
+                    bind(SettingsPannelProperties.contrast, false, NumberStringConverter())
+                }
+            }
             label("Brightness")
-            slider()
+            hbox {
+                slider(-127, 127) {
+                    useMaxWidth = true
+                    hgrow = Priority.ALWAYS
+                    valueProperty().bindBidirectional(SettingsPannelProperties.brightness)
+                }
+                textfield {
+                    prefWidth = 50.0
+                    hgrow = Priority.NEVER
+                    bind(SettingsPannelProperties.brightness, false, NumberStringConverter())
+                }
+            }
         }
     }
 

@@ -2,8 +2,9 @@ package darkroom
 
 import convertToGrayScale
 import marvin.image.MarvinImage
+import marvinplugins.MarvinPluginCollection.brightnessAndContrast
+import marvinplugins.MarvinPluginCollection.invertColors
 import org.marvinproject.image.color.colorChannel.ColorChannel
-import org.marvinproject.image.color.invert.Invert
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
@@ -65,7 +66,7 @@ object Darkroom {
     }
 
     private fun invertNegativeImage(image: MarvinImage) {
-        Invert().process(image, image)
+        invertColors(image)
         image.update()
     }
 
@@ -73,6 +74,12 @@ object Darkroom {
     }
 
     private fun adjustBrightnessAndContrast(image: MarvinImage) {
+        brightnessAndContrast(
+            image,
+            SettingsPannelProperties.brightness.intValue(),
+            SettingsPannelProperties.contrast.intValue()
+        )
+        image.update()
     }
 
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {
