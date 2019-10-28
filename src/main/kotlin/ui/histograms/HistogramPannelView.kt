@@ -1,19 +1,15 @@
 package ui.histograms
 
 import javafx.beans.property.SimpleObjectProperty
-import javafx.geometry.Pos
 import javafx.scene.layout.VBox
 import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
 import tornadofx.*
-import ui.FILM_PREVIEW_WINDOW_HEIGHT
 import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
 
 class HistogramPanelView : View() {
     override val root = vbox {
         spacing = 5.0
-        prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
-        prefHeight = FILM_PREVIEW_WINDOW_HEIGHT
 
         imageview(HistogramChartsForFilm.colorHistogramView)
 

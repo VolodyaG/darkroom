@@ -1,10 +1,12 @@
 package ui
 
 import darkroom.Darkroom
+import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
 import javafx.scene.input.KeyCode
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import tornadofx.*
 import ui.histograms.HistogramPanelView
@@ -14,10 +16,6 @@ class MainView : View("Darkroom") {
         fitWidth = FILM_PREVIEW_WINDOW_WIDTH
         fitHeight = FILM_PREVIEW_WINDOW_HEIGHT
         isPreserveRatio = true
-
-        gridpaneConstraints {
-            vAlignment = VPos.CENTER
-        }
     }
     private val magnifiedImageView = imageview()
 
@@ -27,9 +25,23 @@ class MainView : View("Darkroom") {
             vgap = 10.0
             padding = insets(10)
 
+            columnConstraints.addAll(
+                ColumnConstraints(LEFT_AND_RIGHT_WINDOWS_WIDTH, LEFT_AND_RIGHT_WINDOWS_WIDTH, LEFT_AND_RIGHT_WINDOWS_WIDTH, Priority.NEVER, HPos.CENTER, true),
+                ColumnConstraints(FILM_PREVIEW_WINDOW_WIDTH, FILM_PREVIEW_WINDOW_WIDTH, FILM_PREVIEW_WINDOW_WIDTH, Priority.NEVER, HPos.CENTER, true),
+                ColumnConstraints(LEFT_AND_RIGHT_WINDOWS_WIDTH * 0.5, LEFT_AND_RIGHT_WINDOWS_WIDTH, Double.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true)
+            )
+
+            rowConstraints.addAll(
+                RowConstraints(FILM_PREVIEW_WINDOW_HEIGHT, FILM_PREVIEW_WINDOW_HEIGHT, Double.MAX_VALUE, Priority.ALWAYS, VPos.CENTER, true)
+            )
+
             row {
                 add(HistogramPanelView())
-                add(mainImageView)
+                vbox {
+                    alignment = Pos.CENTER
+
+                    add(mainImageView)
+                }
                 add(SettingsPanelView())
             }
             row {

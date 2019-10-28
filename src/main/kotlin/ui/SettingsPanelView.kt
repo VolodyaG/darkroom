@@ -14,7 +14,6 @@ class SettingsPanelView : View() {
 
     override val root = squeezebox {
         fillHeight = false
-        prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
 
         fold("Save options", expanded = true) {
             vbox {
@@ -47,19 +46,13 @@ class SettingsPanelView : View() {
                 hgap = 5.0
                 vgap = 5.0
 
-                button("flip vertically") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_DOWN)
-                }
-                button("flip horizontally") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_LEFT)
-                }
                 button("rotate clockwise") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.REPEAT)
                 }
                 button("rotate counter-clockwise") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.UNDO)
                 }
-                button("rotate counter-clockwise") {
+                button("crop") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
                 }
             }
