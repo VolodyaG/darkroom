@@ -1,6 +1,9 @@
 package ui.histograms
 
 import javafx.beans.property.SimpleObjectProperty
+import javafx.geometry.Pos
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
@@ -13,43 +16,53 @@ class HistogramPanelView : View() {
 
         imageview(HistogramChartsForFilm.colorHistogramView)
 
-        add(createSliderForColorChannel(HistogramEqualizationProperties.redChannelAdjustment, "Cyan", "Red"))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.greenChannelAdjustment, "Magenta", "Green"))
-        add(createSliderForColorChannel(HistogramEqualizationProperties.blueChannelAdjustment, "Yellow", "Blue"))
+        colorchannelslider(HistogramEqualizationProperties.redChannelAdjustment, "Cyan", "Red")
+        colorchannelslider(HistogramEqualizationProperties.greenChannelAdjustment, "Magenta", "Green")
+        colorchannelslider(HistogramEqualizationProperties.blueChannelAdjustment, "Yellow", "Blue")
 
         imageview(HistogramChartsForFilm.greyHistogramView)
+
         add(RangeSlider(0.0, 255.0, 0.0, 255.0))
         slider()
     }
+}
 
-    private fun createSliderForColorChannel(
-        channelProperty: SimpleObjectProperty<Number>,
-        leftLabel: String,
-        rightLabel: String
-    ): VBox {
-        val textInputWidth = 50.0
-        return vbox {
-            hbox {
-                label(leftLabel) {
-                    textFill = c(leftLabel).darker()
-                }
-                label(rightLabel) {
-                    textFill = c(rightLabel)
-                }
+fun Pane.colorchannelslider(
+    channelProperty: SimpleObjectProperty<Number>,
+    leftLabel: String,
+    rightLabel: String,
+    op: VBox.() -> Unit = {}
+) {
+    val textInputWidth = 50.0
+
+    val node = vbox {
+        hbox {
+            maxWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
+
+            label(leftLabel) {
+                useMaxWidth = true
+                hgrow = Priority.ALWAYS
+                textFill = c(leftLabel).darker()
             }
-            hbox {
-                val colorChannelSlider = slider(-50.0, 50.0) {
-                    useMaxWidth = true
-                    prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
-                    // Todo inc by 1
-                }
-                colorChannelSlider.valueProperty().bindBidirectional(channelProperty)
-                val input = textfield {
-                    maxWidth = textInputWidth
-                }
-                input.bind(colorChannelSlider.valueProperty(), false, NumberStringConverter())
+            label(rightLabel) {
+                textFill = c(rightLabel)
+            }
+        }
+        hbox {
+            alignment = Pos.CENTER
+
+            slider(-50.0, 50.0) {
+                useMaxWidth = true
+                prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
+
+                valueProperty().bindBidirectional(channelProperty) // Todo inc by 1
+            }
+            textfield {
+                maxWidth = textInputWidth
+                bind(channelProperty, false, NumberStringConverter())
             }
         }
     }
-
+    add(node)
+    op(node)
 }

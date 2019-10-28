@@ -45,22 +45,23 @@ object Darkroom {
                 val colorfulImage = doColorChannelsEqualization(adjustedImage)
                 adjustedImage = colorfulImage.convertToGrayScale()
                 doLuminosityEqualization(adjustedImage)
+                adjustBrightnessAndContrast(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
             }
             FilmTypes.COLOR_NEGATIVE -> {
                 invertNegativeImage(adjustedImage)
                 adjustedImage = doColorChannelsEqualization(adjustedImage)
                 doLuminosityEqualization(adjustedImage)
+                adjustBrightnessAndContrast(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
                 adjustedImage = doColorChannelsEqualization(adjustedImage)
                 doLuminosityEqualization(adjustedImage)
+                adjustBrightnessAndContrast(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
         }
-
-        adjustBrightnessAndContrast(adjustedImage)
 
         return adjustedImage.bufferedImage
     }
