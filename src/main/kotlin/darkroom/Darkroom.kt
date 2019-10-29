@@ -10,6 +10,7 @@ import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
 import java.io.File
+import java.util.*
 import javax.imageio.ImageIO
 
 private val debugImage = ImageIO.read(File("prints/02_long_10.png"));
@@ -41,12 +42,24 @@ object Darkroom {
 
         when (SettingsPannelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
+                var dataBefore = Date()
                 invertNegativeImage(adjustedImage)
+                var dataInvert = Date()
+                println("Invert time: ${dataInvert.time - dataBefore.time}ms")
                 val colorfulImage = doColorChannelsEqualization(adjustedImage)
+                var dataColors = Date()
+                println("Colors time: ${dataColors.time - dataInvert.time}ms")
                 adjustedImage = colorfulImage.convertToGrayScale()
+                var dataGray = Date()
+                println("Grayscale time: ${dataGray.time - dataColors.time}ms")
                 doLuminosityEqualization(adjustedImage)
+                var dataLumin = Date()
+                println("Luminosity time: ${dataLumin.time - dataGray.time}ms")
                 adjustBrightnessAndContrast(adjustedImage)
+                var dataBrightn = Date()
+                println("Brightness time: ${dataBrightn.time - dataLumin.time}ms")
                 HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
+                println("All processing time: ${Date().time - dataBefore.time}ms")
             }
             FilmTypes.COLOR_NEGATIVE -> {
                 invertNegativeImage(adjustedImage)
