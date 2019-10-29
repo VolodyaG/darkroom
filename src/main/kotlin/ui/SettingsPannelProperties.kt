@@ -17,6 +17,9 @@ object SettingsPannelProperties {
     val contrast = SimpleDoubleProperty(0.0)
     val exposure = SimpleDoubleProperty(1.0)
 
+    val lowLumLevel = SimpleDoubleProperty(0.0)
+    val highLumLevel = SimpleDoubleProperty(1.0)
+
     fun changePrintsLocation(newLocation: File) {
         PrintSettings.folderToSave = newLocation
         printsFolder.set(newLocation.canonicalPath)

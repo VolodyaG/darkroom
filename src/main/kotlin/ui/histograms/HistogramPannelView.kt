@@ -1,6 +1,7 @@
 package ui.histograms
 
 import javafx.beans.property.SimpleObjectProperty
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -9,6 +10,9 @@ import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
 import tornadofx.*
 import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
+import ui.SettingsPannelProperties
+
+val textInputWidth = 50.0
 
 class HistogramPanelView : View() {
     override val root = vbox {
@@ -22,8 +26,25 @@ class HistogramPanelView : View() {
 
         imageview(HistogramChartsForFilm.greyHistogramView)
 
-        add(RangeSlider(0.0, 255.0, 0.0, 255.0))
-        slider()
+        hbox {// TODO make it nicer
+            val slider = RangeSlider()
+            slider.lowValueProperty().bindBidirectional(SettingsPannelProperties.lowLumLevel)
+            slider.highValueProperty().bindBidirectional(SettingsPannelProperties.highLumLevel)
+            slider.min = 0.0
+            slider.max = 1.0
+            slider.hgrow = Priority.ALWAYS
+            slider.padding = Insets(0.0, 5.0, 0.0, 2.0)
+
+            textfield {
+                maxWidth = textInputWidth
+                bind(SettingsPannelProperties.lowLumLevel, false, NumberStringConverter())
+            }
+            add(slider)
+            textfield {
+                maxWidth = textInputWidth
+                bind(SettingsPannelProperties.highLumLevel, false, NumberStringConverter())
+            }
+        }
     }
 }
 
@@ -33,8 +54,6 @@ fun Pane.colorchannelslider(
     rightLabel: String,
     op: VBox.() -> Unit = {}
 ) {
-    val textInputWidth = 50.0
-
     val node = vbox {
         hbox {
             maxWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth

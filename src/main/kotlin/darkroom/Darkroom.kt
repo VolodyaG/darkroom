@@ -105,7 +105,12 @@ object Darkroom {
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage  {
-        return image
+        val levelsFilter = LevelsFilter()
+
+        levelsFilter.lowLevel = SettingsPannelProperties.lowLumLevel.floatValue()
+        levelsFilter.highLevel = SettingsPannelProperties.highLumLevel.floatValue()
+
+        return levelsFilter.filter(image, null)
     }
 
     private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
