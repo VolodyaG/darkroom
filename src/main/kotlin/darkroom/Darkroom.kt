@@ -1,13 +1,7 @@
 package darkroom
 
-import com.jhlabs.image.ContrastFilter
-import com.jhlabs.image.GrayscaleFilter
-import com.jhlabs.image.InvertFilter
-import com.jhlabs.image.LevelsFilter
-import convertToGrayScale
+import com.jhlabs.image.*
 import marvin.image.MarvinImage
-import marvinplugins.MarvinPluginCollection.brightnessAndContrast
-import marvinplugins.MarvinPluginCollection.invertColors
 import org.marvinproject.image.color.colorChannel.ColorChannel
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramChartsForFilm
@@ -17,7 +11,7 @@ import java.io.File
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/02_long_10.png"));
+private val debugImage = ImageIO.read(File("prints/test0.3609616763242701.png"));
 
 object Darkroom {
     var isPrinting = false
@@ -68,21 +62,27 @@ object Darkroom {
                 var dataBrightn = Date()
                 println("Brightness time: ${dataBrightn.time - dataLumin.time}ms")
 
+                adjustedImage = adjustExposure(adjustedImage)
+                var dataExposr = Date()
+                println("Exposure time: ${dataExposr.time - dataBrightn.time}ms")
+
                 HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(MarvinImage(adjustedImage), MarvinImage(colorfulImage))
                 println("All processing time: ${Date().time - dataBefore.time}ms")
             }
             FilmTypes.COLOR_NEGATIVE -> {
-//                invertNegativeImage(adjustedImage)
-//                adjustedImage = doColorChannelsEqualization(adjustedImage)
-//                doLuminosityEqualization(adjustedImage)
-//                adjustBrightnessAndContrast(adjustedImage)
-//                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+                adjustedImage = invertNegativeImage(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
+                adjustedImage = doLuminosityEqualization(adjustedImage)
+                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+                adjustedImage = adjustExposure(adjustedImage)
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
             FilmTypes.POSITIVE -> {
-//                adjustedImage = doColorChannelsEqualization(adjustedImage)
-//                doLuminosityEqualization(adjustedImage)
-//                adjustBrightnessAndContrast(adjustedImage)
-//                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
+                adjustedImage = doLuminosityEqualization(adjustedImage)
+                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+                adjustedImage = adjustExposure(adjustedImage)
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
         }
 
@@ -110,9 +110,15 @@ object Darkroom {
 
     private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
         val contrastFilter = ContrastFilter()
-        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue()
-        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue()
+        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue() + 1
+        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue() + 1
         return contrastFilter.filter(image, null)
+    }
+
+    private fun adjustExposure(image: BufferedImage): BufferedImage {
+        val exposureFilter = ExposureFilter()
+        exposureFilter.exposure = SettingsPannelProperties.exposure.floatValue()
+        return exposureFilter.filter(image, null)
     }
 
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {

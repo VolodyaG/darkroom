@@ -4,9 +4,12 @@ import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.geometry.Pos
 import javafx.scene.control.Button
+import javafx.scene.control.Slider
 import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.util.StringConverter
 import javafx.util.converter.NumberStringConverter
@@ -76,39 +79,17 @@ class SettingsPanelView : View() {
                 }
             }
             fold("Adjust Color", expanded = true) {
-                label("Contrast") {
-                    addClass(Styles.propertyLabel)
+                colorslider("Contrast", SettingsPannelProperties.contrast) {
+                    min = -0.5
+                    max = 0.5
                 }
-                hbox {
-                    alignment = Pos.CENTER
-
-                    slider(-10, 11) { // TODO look deeper into this shit
-                        useMaxWidth = true
-                        hgrow = Priority.ALWAYS
-                        valueProperty().bindBidirectional(SettingsPannelProperties.contrast)
-                    }
-                    textfield {
-                        prefWidth = 50.0
-                        hgrow = Priority.NEVER
-                        bind(SettingsPannelProperties.contrast, false, NumberStringConverter())
-                    }
+                colorslider("Brightness", SettingsPannelProperties.brightness) {
+                    min = -0.5
+                    max = 0.5
                 }
-                label("Brightness") {
-                    addClass(Styles.propertyLabel)
-                }
-                hbox {
-                    alignment = Pos.CENTER
-
-                    slider(-10, 11) { // TODO look deeper into this shit
-                        useMaxWidth = true
-                        hgrow = Priority.ALWAYS
-                        valueProperty().bindBidirectional(SettingsPannelProperties.brightness)
-                    }
-                    textfield {
-                        prefWidth = 50.0
-                        hgrow = Priority.NEVER
-                        bind(SettingsPannelProperties.brightness, false, NumberStringConverter())
-                    }
+                colorslider("Exposure", SettingsPannelProperties.exposure) {
+                    min = 0.0
+                    max = 5.0
                 }
             }
         }
@@ -141,4 +122,26 @@ class FilmTypeStringConverter : StringConverter<FilmTypes>() {
     override fun fromString(string: String): FilmTypes {
         return FilmTypes.fromString(string)
     }
+}
+
+fun Pane.colorslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
+    add(label(name) {
+        addClass(Styles.propertyLabel)
+    })
+    add(hbox {
+        alignment = Pos.CENTER
+
+        val slider = slider {
+            useMaxWidth = true
+            hgrow = Priority.ALWAYS
+            valueProperty().bindBidirectional(property)
+        }
+        textfield {
+            prefWidth = 50.0
+            hgrow = Priority.NEVER
+            bind(property, false, NumberStringConverter())
+        }
+
+        slider.op()
+    })
 }
