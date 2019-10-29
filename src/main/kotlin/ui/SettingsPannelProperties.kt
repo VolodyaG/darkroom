@@ -13,8 +13,8 @@ object SettingsPannelProperties {
 
     val filmType = SimpleObjectProperty(FilmTypes.BLACK_AND_WHITE)
 
-    val brightness = SimpleDoubleProperty(0.0)
-    val contrast = SimpleDoubleProperty(0.0)
+    val brightness = SimpleDoubleProperty(1.0)
+    val contrast = SimpleDoubleProperty(1.0)
 
     fun changePrintsLocation(newLocation: File) {
         PrintSettings.folderToSave = newLocation

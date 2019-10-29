@@ -1,5 +1,9 @@
 package darkroom
 
+import com.jhlabs.image.ContrastFilter
+import com.jhlabs.image.GrayscaleFilter
+import com.jhlabs.image.InvertFilter
+import com.jhlabs.image.LevelsFilter
 import convertToGrayScale
 import marvin.image.MarvinImage
 import marvinplugins.MarvinPluginCollection.brightnessAndContrast
@@ -38,62 +42,77 @@ object Darkroom {
     }
 
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
-        var adjustedImage = MarvinImage(image)
+        var adjustedImage = image
 
         when (SettingsPannelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
                 var dataBefore = Date()
-                invertNegativeImage(adjustedImage)
+
+                adjustedImage = invertNegativeImage(adjustedImage)
                 var dataInvert = Date()
                 println("Invert time: ${dataInvert.time - dataBefore.time}ms")
-                val colorfulImage = doColorChannelsEqualization(adjustedImage)
+
+                val colorfulImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 var dataColors = Date()
                 println("Colors time: ${dataColors.time - dataInvert.time}ms")
-                adjustedImage = colorfulImage.convertToGrayScale()
+
+                adjustedImage = convertToGrayscale(colorfulImage)
                 var dataGray = Date()
                 println("Grayscale time: ${dataGray.time - dataColors.time}ms")
-                doLuminosityEqualization(adjustedImage)
+
+                adjustedImage = doLuminosityEqualization(adjustedImage)
                 var dataLumin = Date()
                 println("Luminosity time: ${dataLumin.time - dataGray.time}ms")
-                adjustBrightnessAndContrast(adjustedImage)
+
+                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
                 var dataBrightn = Date()
                 println("Brightness time: ${dataBrightn.time - dataLumin.time}ms")
-                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
+
+                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(MarvinImage(adjustedImage), MarvinImage(colorfulImage))
                 println("All processing time: ${Date().time - dataBefore.time}ms")
             }
             FilmTypes.COLOR_NEGATIVE -> {
-                invertNegativeImage(adjustedImage)
-                adjustedImage = doColorChannelsEqualization(adjustedImage)
-                doLuminosityEqualization(adjustedImage)
-                adjustBrightnessAndContrast(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+//                invertNegativeImage(adjustedImage)
+//                adjustedImage = doColorChannelsEqualization(adjustedImage)
+//                doLuminosityEqualization(adjustedImage)
+//                adjustBrightnessAndContrast(adjustedImage)
+//                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
-                adjustedImage = doColorChannelsEqualization(adjustedImage)
-                doLuminosityEqualization(adjustedImage)
-                adjustBrightnessAndContrast(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+//                adjustedImage = doColorChannelsEqualization(adjustedImage)
+//                doLuminosityEqualization(adjustedImage)
+//                adjustBrightnessAndContrast(adjustedImage)
+//                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
         }
 
-        return adjustedImage.bufferedImage
+        return adjustedImage
     }
 
-    private fun invertNegativeImage(image: MarvinImage) {
-        invertColors(image)
-        image.update()
+    private fun invertNegativeImage(image: BufferedImage): BufferedImage {
+//        val marvinImage = MarvinImage(image)
+//        invertColors(marvinImage)
+//        marvinImage.update()
+//        return marvinImage.bufferedImage
+
+        val invertFilter = InvertFilter()
+        return invertFilter.filter(image, null)
     }
 
-    private fun doLuminosityEqualization(image: MarvinImage) {
+    private fun convertToGrayscale(image: BufferedImage): BufferedImage {
+        val grayscaleFilter = GrayscaleFilter()
+        return grayscaleFilter.filter(image, null)
     }
 
-    private fun adjustBrightnessAndContrast(image: MarvinImage) {
-        brightnessAndContrast(
-            image,
-            SettingsPannelProperties.brightness.intValue(),
-            SettingsPannelProperties.contrast.intValue()
-        )
-        image.update()
+    private fun doLuminosityEqualization(image: BufferedImage): BufferedImage  {
+        return image
+    }
+
+    private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
+        val contrastFilter = ContrastFilter()
+        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue()
+        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue()
+        return contrastFilter.filter(image, null)
     }
 
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {

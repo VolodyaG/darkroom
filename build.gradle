@@ -47,6 +47,8 @@ dependencies {
 
     compile group: 'com.github.downgoon', name: 'MarvinFramework', version: '1.5.5'
     compile group: 'com.github.downgoon', name: 'MarvinPlugins', version: '1.5.5'
+
+    compile group: 'com.jhlabs', name: 'filters', version: '2.0.235-1'
 }
 
 compileKotlin {

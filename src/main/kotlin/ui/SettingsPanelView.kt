@@ -36,7 +36,7 @@ class SettingsPanelView : View() {
                         label(SettingsPannelProperties.printsFolder)
                         button {
                             useMaxWidth = true
-                            graphic = FontAwesomeIconView(FontAwesomeIcon.SEARCH)
+                            graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)
 
                             setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE)
 
@@ -82,7 +82,7 @@ class SettingsPanelView : View() {
                 hbox {
                     alignment = Pos.CENTER
 
-                    slider(-127, 127) {
+                    slider(-10, 11) { // TODO look deeper into this shit
                         useMaxWidth = true
                         hgrow = Priority.ALWAYS
                         valueProperty().bindBidirectional(SettingsPannelProperties.contrast)
@@ -99,7 +99,7 @@ class SettingsPanelView : View() {
                 hbox {
                     alignment = Pos.CENTER
 
-                    slider(-127, 127) {
+                    slider(-10, 11) { // TODO look deeper into this shit
                         useMaxWidth = true
                         hgrow = Priority.ALWAYS
                         valueProperty().bindBidirectional(SettingsPannelProperties.brightness)

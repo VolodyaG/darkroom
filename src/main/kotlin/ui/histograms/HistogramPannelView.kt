@@ -64,5 +64,5 @@ fun Pane.colorchannelslider(
         }
     }
     add(node)
-    op(node)
+    node.op()
 }
