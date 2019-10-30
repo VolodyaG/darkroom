@@ -11,14 +11,19 @@ import java.io.File
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/test0.3609616763242701.png"));
+private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
 
 object Darkroom {
     var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
-//        val previewFrame = FilmScanner.scanInFullResolution()
-        val previewFrame = debugImage // TODO For debug without scanner
+        val previewFrame: BufferedImage
+
+        if (System.getenv("WITHOUT_SCANNER") == true.toString()) {
+            previewFrame = debugImage
+        } else {
+            previewFrame = FilmScanner.scanInFullResolution()
+        }
 
         return doImageProcessing(previewFrame)
     }
@@ -26,7 +31,14 @@ object Darkroom {
     fun printImage() {
         isPrinting = true
         try {
-            val scan = FilmScanner.scanInFullResolution()
+            val scan: BufferedImage
+
+            if (System.getenv("WITHOUT_SCANNER") == true.toString()) {
+                scan = debugImage
+            } else {
+                scan = FilmScanner.scanInFullResolution()
+            }
+
             val print = doImageProcessing(scan)
             val filePath = "${PrintSettings.folderToSave.path}/${getPrintName()}"
             ImageIO.write(print, "PNG", File(filePath))
@@ -62,11 +74,11 @@ object Darkroom {
                 var dataBrightn = Date()
                 println("Brightness time: ${dataBrightn.time - dataLumin.time}ms")
 
-                adjustedImage = adjustExposure(adjustedImage)
-                var dataExposr = Date()
-                println("Exposure time: ${dataExposr.time - dataBrightn.time}ms")
+                adjustedImage = rotate(adjustedImage)
+                var dataRotate = Date()
+                println("Rotate time: ${dataRotate.time - dataBrightn.time}ms")
 
-                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(MarvinImage(adjustedImage), MarvinImage(colorfulImage))
+                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
                 println("All processing time: ${Date().time - dataBefore.time}ms")
             }
             FilmTypes.COLOR_NEGATIVE -> {
@@ -74,14 +86,12 @@ object Darkroom {
                 adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
-                adjustedImage = adjustExposure(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
             FilmTypes.POSITIVE -> {
                 adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
-                adjustedImage = adjustExposure(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
         }
@@ -97,6 +107,26 @@ object Darkroom {
 
         val invertFilter = InvertFilter()
         return invertFilter.filter(image, null)
+
+// even longer than two above
+//        for (w in 0 until image.width) {
+//            for (h in 0 until image.height) {
+//                var p = image.getRGB(w, h)
+//                val a = p shr 24 and 0xff
+//                var r = p shr 16 and 0xff
+//                var g = p shr 8 and 0xff
+//                var b = p and 0xff
+//
+//                r = 255 - r
+//                g = 255 - g
+//                b = 255 - b
+//                p = a shl 24 or (r shl 16) or (g shl 8) or b
+//
+//                image.setRGB(w, h, p)
+//            }
+//        }
+//
+//        return image;
     }
 
     private fun convertToGrayscale(image: BufferedImage): BufferedImage {
@@ -104,7 +134,7 @@ object Darkroom {
         return grayscaleFilter.filter(image, null)
     }
 
-    private fun doLuminosityEqualization(image: BufferedImage): BufferedImage  {
+    private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
         val levelsFilter = LevelsFilter()
 
         levelsFilter.lowLevel = SettingsPannelProperties.lowLumLevel.floatValue()
@@ -120,10 +150,11 @@ object Darkroom {
         return contrastFilter.filter(image, null)
     }
 
-    private fun adjustExposure(image: BufferedImage): BufferedImage {
-        val exposureFilter = ExposureFilter()
-        exposureFilter.exposure = SettingsPannelProperties.exposure.floatValue()
-        return exposureFilter.filter(image, null)
+    private fun rotate(image: BufferedImage): BufferedImage {
+        val degreeAngle = SettingsPannelProperties.rotation.value
+        val radAngle = Math.toRadians(-degreeAngle).toFloat()
+        val rotateFilter = RotateFilter(radAngle)
+        return rotateFilter.filter(image, null)
     }
 
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {

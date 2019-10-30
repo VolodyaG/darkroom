@@ -6,21 +6,22 @@ import javafx.scene.image.Image
 import marvin.image.MarvinImage
 import toFxImage
 import tornadofx.runAsync
+import java.awt.image.BufferedImage
 import kotlin.math.roundToInt
 
 object HistogramChartsForFilm {
     val colorHistogramView = SimpleObjectProperty<Image>()
     val greyHistogramView = SimpleObjectProperty<Image>()
 
-    fun buildHistogramsForBlackAndWhiteFilm(grayImage: MarvinImage, colorImage: MarvinImage) {
+    fun buildHistogramsForBlackAndWhiteFilm(grayImage: BufferedImage, colorImage: BufferedImage) {
         runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(grayImage)
+            val regionToAnalise = crop10PercentOfTheImage(MarvinImage(grayImage))
             val grayHisto = HistogramDrawer.createHistogram(regionToAnalise, true)
             greyHistogramView.set(grayHisto.toFxImage())
         }
 
         runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(colorImage)
+            val regionToAnalise = crop10PercentOfTheImage(MarvinImage(colorImage))
             val colorHisto = HistogramDrawer.createHistogram(regionToAnalise, false)
             colorHistogramView.set(colorHisto.toFxImage())
         }

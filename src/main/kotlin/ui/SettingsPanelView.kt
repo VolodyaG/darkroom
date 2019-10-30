@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.Slider
@@ -62,34 +63,28 @@ class SettingsPanelView : View() {
                 }
             }
             fold("Crop and Rotate", expanded = false) {
-                flowpane {
-                    padding = insets(5)
-                    hgap = 5.0
-                    vgap = 5.0
+                settingsslider("Rotation Angle", SettingsPannelProperties.rotation) {
+                    min = -180.0
+                    max = 180.0
+                    blockIncrement = 90.0
+                    majorTickUnit = 90.0
+                    isShowTickLabels = true
+                    isSnapToTicks = true
 
-                    button("rotate clockwise") {
-                        graphic = FontAwesomeIconView(FontAwesomeIcon.REPEAT)
-                    }
-                    button("rotate counter-clockwise") {
-                        graphic = FontAwesomeIconView(FontAwesomeIcon.UNDO)
-                    }
-                    button("crop") {
-                        graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
-                    }
+                    padding = Insets(0.0, 5.0, 0.0, 5.0)
+                }
+                button("crop") {
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
                 }
             }
             fold("Adjust Color", expanded = true) {
-                colorslider("Contrast", SettingsPannelProperties.contrast) {
+                settingsslider("Contrast", SettingsPannelProperties.contrast) {
                     min = -0.5
                     max = 0.5
                 }
-                colorslider("Brightness", SettingsPannelProperties.brightness) {
+                settingsslider("Brightness", SettingsPannelProperties.brightness) {
                     min = -0.5
                     max = 0.5
-                }
-                colorslider("Exposure", SettingsPannelProperties.exposure) {
-                    min = 0.0
-                    max = 5.0
                 }
             }
         }
@@ -124,7 +119,7 @@ class FilmTypeStringConverter : StringConverter<FilmTypes>() {
     }
 }
 
-fun Pane.colorslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
+fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
     add(label(name) {
         addClass(Styles.propertyLabel)
     })

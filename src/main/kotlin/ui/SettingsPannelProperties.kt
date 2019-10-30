@@ -13,9 +13,10 @@ object SettingsPannelProperties {
 
     val filmType = SimpleObjectProperty(FilmTypes.BLACK_AND_WHITE)
 
+    val rotation = SimpleDoubleProperty(0.0)
+
     val brightness = SimpleDoubleProperty(0.0)
     val contrast = SimpleDoubleProperty(0.0)
-    val exposure = SimpleDoubleProperty(1.0)
 
     val lowLumLevel = SimpleDoubleProperty(0.0)
     val highLumLevel = SimpleDoubleProperty(1.0)
