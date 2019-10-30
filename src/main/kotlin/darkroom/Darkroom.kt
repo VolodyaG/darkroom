@@ -100,33 +100,32 @@ object Darkroom {
     }
 
     private fun invertNegativeImage(image: BufferedImage): BufferedImage {
-//        val marvinImage = MarvinImage(image)
-//        invertColors(marvinImage)
-//        marvinImage.update()
-//        return marvinImage.bufferedImage
+        /*val marvinImage = MarvinImage(image)
+        invertColors(marvinImage)
+        marvinImage.update()
+        return marvinImage.bufferedImage*/
 
         val invertFilter = InvertFilter()
         return invertFilter.filter(image, null)
 
-// even longer than two above
-//        for (w in 0 until image.width) {
-//            for (h in 0 until image.height) {
-//                var p = image.getRGB(w, h)
-//                val a = p shr 24 and 0xff
-//                var r = p shr 16 and 0xff
-//                var g = p shr 8 and 0xff
-//                var b = p and 0xff
-//
-//                r = 255 - r
-//                g = 255 - g
-//                b = 255 - b
-//                p = a shl 24 or (r shl 16) or (g shl 8) or b
-//
-//                image.setRGB(w, h, p)
-//            }
-//        }
-//
-//        return image;
+        // TODO even longer than two above, try to parallel
+        /*for (w in 0 until image.width) {
+            for (h in 0 until image.height) {
+                var p = image.getRGB(w, h)
+                val a = p shr 24 and 0xff
+                var r = p shr 16 and 0xff
+                var g = p shr 8 and 0xff
+                var b = p and 0xff
+
+                r = 255 - r
+                g = 255 - g
+                b = 255 - b
+                p = a shl 24 or (r shl 16) or (g shl 8) or b
+
+                image.setRGB(w, h, p)
+            }
+        }
+        return image;*/
     }
 
     private fun convertToGrayscale(image: BufferedImage): BufferedImage {
@@ -135,6 +134,10 @@ object Darkroom {
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
+        if (SettingsPannelProperties.lowLumLevel.value == 0.0 && SettingsPannelProperties.highLumLevel.value == 1.0) {
+            return image
+        }
+
         val levelsFilter = LevelsFilter()
 
         levelsFilter.lowLevel = SettingsPannelProperties.lowLumLevel.floatValue()
@@ -144,6 +147,10 @@ object Darkroom {
     }
 
     private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
+        if (SettingsPannelProperties.contrast.value == 0.0 && SettingsPannelProperties.brightness.value == 0.0) {
+            return image
+        }
+
         val contrastFilter = ContrastFilter()
         contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue() + 1
         contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue() + 1
@@ -152,6 +159,11 @@ object Darkroom {
 
     private fun rotate(image: BufferedImage): BufferedImage {
         val degreeAngle = SettingsPannelProperties.rotation.value
+
+        if (degreeAngle == 0.0) {
+            return image
+        }
+
         val radAngle = Math.toRadians(-degreeAngle).toFloat()
         val rotateFilter = RotateFilter(radAngle)
         return rotateFilter.filter(image, null)
