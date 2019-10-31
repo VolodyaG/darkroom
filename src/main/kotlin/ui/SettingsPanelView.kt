@@ -14,9 +14,10 @@ import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.util.StringConverter
 import javafx.util.converter.NumberStringConverter
 import tornadofx.*
+import ui.converters.FilmTypeStringConverter
+import ui.converters.FiltersToggleStringConverter
 import ui.histograms.HistogramEqualizationProperties
 
 class SettingsPanelView : View() {
@@ -104,6 +105,12 @@ class SettingsPanelView : View() {
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
 
+            togglebutton(FiltersToggleStringConverter.toggledText) {
+                isSelected = true
+
+                selectedProperty().bindBidirectional(SettingsPannelProperties.isFiltersApplied)
+                textProperty().bindBidirectional(selectedProperty(), FiltersToggleStringConverter())
+            }
             button("Reset ALL") {
                 action {
                     SettingsPannelProperties.resetAll()
@@ -128,16 +135,6 @@ class SettingsPanelView : View() {
         if (chosenDirectory != null) {
             SettingsPannelProperties.changePrintsLocation(chosenDirectory)
         }
-    }
-}
-
-class FilmTypeStringConverter : StringConverter<FilmTypes>() {
-    override fun toString(filmType: FilmTypes): String {
-        return filmType.displayName
-    }
-
-    override fun fromString(string: String): FilmTypes {
-        return FilmTypes.fromString(string)
     }
 }
 

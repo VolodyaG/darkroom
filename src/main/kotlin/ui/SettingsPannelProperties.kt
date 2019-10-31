@@ -2,6 +2,7 @@ package ui
 
 import darkroom.FilmTypes
 import darkroom.PrintSettings
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -11,6 +12,8 @@ import java.io.File
 object SettingsPannelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
+
+    val isFiltersApplied = SimpleBooleanProperty(true)
 
     val filmType = SimpleObjectProperty<FilmTypes>()
     val rotation = SimpleDoubleProperty()
