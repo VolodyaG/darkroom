@@ -4,8 +4,10 @@ import com.jhlabs.image.ContrastFilter
 import com.jhlabs.image.LevelsFilter
 import com.jhlabs.image.RotateFilter
 import convertToGrayScale
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import marvin.image.MarvinImage
-import marvinplugins.MarvinPluginCollection.invertColors
 import org.marvinproject.image.color.colorChannel.ColorChannel
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramChartsForFilm
@@ -24,7 +26,9 @@ object Darkroom {
         val previewFrame: BufferedImage
 
         if (System.getenv("WITHOUT_SCANNER") == true.toString()) {
-            previewFrame = debugImage
+            val newImage = BufferedImage(debugImage.width, debugImage.height, 5)
+            newImage.graphics.drawImage(debugImage, 0, 0, null)
+            previewFrame = newImage
         } else {
             previewFrame = FilmScanner.scanInFullResolution()
         }
@@ -110,32 +114,36 @@ object Darkroom {
     }
 
     private fun invertNegativeImage(image: BufferedImage): BufferedImage {
-        val marvinImage = MarvinImage(image)
-        invertColors(marvinImage)
-        marvinImage.update()
-        return marvinImage.bufferedImage
+        val newImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB)
 
-//        val invertFilter = InvertFilter()
-//        return invertFilter.filter(image, null)
+        val imageRaster = image.raster
+        val newImageRaster = newImage.raster
 
-        // TODO even longer than two above, try to parallel
-        /*for (w in 0 until image.width) {
-            for (h in 0 until image.height) {
-                var p = image.getRGB(w, h)
-                val a = p shr 24 and 0xff
-                var r = p shr 16 and 0xff
-                var g = p shr 8 and 0xff
-                var b = p and 0xff
+        val halfOfTheImageWidth = image.width / 2
+        val pixelsInHalfImage = (halfOfTheImageWidth * image.height) * 3
 
-                r = 255 - r
-                g = 255 - g
-                b = 255 - b
-                p = a shl 24 or (r shl 16) or (g shl 8) or b
-
-                image.setRGB(w, h, p)
+        val firstHalfWorker = GlobalScope.async {
+            val pixels = imageRaster.getPixels(0, 0, halfOfTheImageWidth, image.height, IntArray(pixelsInHalfImage))
+            pixels.forEachIndexed { index, i ->
+                pixels[index] = 255 - i
             }
+            newImageRaster.setPixels(0, 0, halfOfTheImageWidth, image.height, pixels)
         }
-        return image;*/
+
+        val secondHalfWorker = GlobalScope.async {
+            val pixels = imageRaster.getPixels(halfOfTheImageWidth, 0, image.width - halfOfTheImageWidth, image.height, IntArray(pixelsInHalfImage))
+            pixels.forEachIndexed { index, i ->
+                pixels[index] = 255 - i
+            }
+            newImageRaster.setPixels(halfOfTheImageWidth, 0, image.width - halfOfTheImageWidth, image.height, pixels)
+        }
+
+        runBlocking {
+            secondHalfWorker.await()
+            firstHalfWorker.await()
+        }
+
+        return newImage
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
