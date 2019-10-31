@@ -5,11 +5,13 @@ import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
+import javafx.scene.Group
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import tornadofx.*
 import ui.histograms.HistogramPanelView
+import ui.selection.imageviewselection
 
 class MainView : View("Darkroom") {
     private val mainImageView = imageview(FilmPreview) {
@@ -20,6 +22,8 @@ class MainView : View("Darkroom") {
     private val magnifiedImageView = imageview()
 
     override val root = stackpane {
+        val group = Group(mainImageView)
+
         gridpane {
             hgap = 10.0
             vgap = 10.0
@@ -40,7 +44,7 @@ class MainView : View("Darkroom") {
                 vbox {
                     alignment = Pos.CENTER
 
-                    add(mainImageView)
+                    add(group)
                 }
                 add(SettingsPanelView())
             }
@@ -72,11 +76,18 @@ class MainView : View("Darkroom") {
             }
             style {
                 backgroundColor += c("white")
-                borderRadius += box(20.px)
                 borderWidth += box(5.px)
                 borderColor += box(Color.BLACK)
             }
             visibleProperty().set(false)
+        }
+        imageviewselection(mainImageView) {
+            style {
+                stroke = Color.RED
+                strokeWidth = 1.px
+                fill = Color(1.0, 1.0, 1.0, 0.0)
+            }
+            group.add(this)
         }
     }
 
