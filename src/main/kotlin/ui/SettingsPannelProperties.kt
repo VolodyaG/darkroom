@@ -7,22 +7,33 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import java.io.File
 
+// TODO fix naming
 object SettingsPannelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 
-    val filmType = SimpleObjectProperty(FilmTypes.BLACK_AND_WHITE)
+    val filmType = SimpleObjectProperty<FilmTypes>()
+    val rotation = SimpleDoubleProperty()
+    val brightness = SimpleDoubleProperty()
+    val contrast = SimpleDoubleProperty()
 
-    val rotation = SimpleDoubleProperty(0.0)
+    init {
+        setInitialValues()
+    }
 
-    val brightness = SimpleDoubleProperty(0.0)
-    val contrast = SimpleDoubleProperty(0.0)
-
-    val lowLumLevel = SimpleDoubleProperty(0.0)
-    val highLumLevel = SimpleDoubleProperty(1.0)
+    fun resetAll() {
+        setInitialValues()
+    }
 
     fun changePrintsLocation(newLocation: File) {
         PrintSettings.folderToSave = newLocation
         printsFolder.set(newLocation.canonicalPath)
+    }
+
+    private fun setInitialValues() {
+        filmType.value = FilmTypes.BLACK_AND_WHITE
+        rotation.value = 0.0
+        brightness.value = 0.0
+        contrast.value = 0.0
     }
 }

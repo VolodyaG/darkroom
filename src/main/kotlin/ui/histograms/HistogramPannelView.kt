@@ -28,8 +28,8 @@ class HistogramPanelView : View() {
 
         hbox {// TODO make it nicer
             val slider = RangeSlider()
-            slider.lowValueProperty().bindBidirectional(SettingsPannelProperties.lowLumLevel)
-            slider.highValueProperty().bindBidirectional(SettingsPannelProperties.highLumLevel)
+            slider.lowValueProperty().bindBidirectional(HistogramEqualizationProperties.lowLumLevel)
+            slider.highValueProperty().bindBidirectional(HistogramEqualizationProperties.highLumLevel)
             slider.min = 0.0
             slider.max = 1.0
             slider.hgrow = Priority.ALWAYS
@@ -37,12 +37,12 @@ class HistogramPanelView : View() {
 
             textfield {
                 maxWidth = textInputWidth
-                bind(SettingsPannelProperties.lowLumLevel, false, NumberStringConverter())
+                bind(HistogramEqualizationProperties.lowLumLevel, false, NumberStringConverter())
             }
             add(slider)
             textfield {
                 maxWidth = textInputWidth
-                bind(SettingsPannelProperties.highLumLevel, false, NumberStringConverter())
+                bind(HistogramEqualizationProperties.highLumLevel, false, NumberStringConverter())
             }
         }
     }

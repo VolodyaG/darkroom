@@ -5,16 +5,19 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.Slider
 import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.util.StringConverter
 import javafx.util.converter.NumberStringConverter
 import tornadofx.*
+import ui.histograms.HistogramEqualizationProperties
 
 class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
@@ -62,33 +65,52 @@ class SettingsPanelView : View() {
                     }
                 }
             }
-            fold("Crop and Rotate", expanded = false) {
-                settingsslider("Rotation Angle", SettingsPannelProperties.rotation) {
-                    min = -180.0
-                    max = 180.0
-                    blockIncrement = 90.0
-                    majorTickUnit = 90.0
-                    isShowTickLabels = true
-                    isSnapToTicks = true
+            fold("Crop and Rotate", expanded = true) {
+                vbox {
+                    settingsslider("Rotation Angle", SettingsPannelProperties.rotation) {
+                        min = -180.0
+                        max = 180.0
+                        blockIncrement = 90.0
+                        majorTickUnit = 90.0
 
-                    padding = Insets(0.0, 5.0, 0.0, 5.0)
-                }
-                button("crop") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
+                        padding = Insets(0.0, 5.0, 0.0, 5.0)
+                    }
+                    button("crop") {
+                        graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
+                    }
                 }
             }
             fold("Adjust Color", expanded = true) {
-                settingsslider("Contrast", SettingsPannelProperties.contrast) {
-                    min = -0.5
-                    max = 0.5
-                }
-                settingsslider("Brightness", SettingsPannelProperties.brightness) {
-                    min = -0.5
-                    max = 0.5
+                vbox {
+                    spacing = 5.0
+
+                    settingsslider("Contrast", SettingsPannelProperties.contrast) {
+                        min = -1.0
+                        max = 1.0
+                        blockIncrement = 0.1
+                        majorTickUnit = 0.5
+                    }
+                    settingsslider("Brightness", SettingsPannelProperties.brightness) {
+                        min = -1.0
+                        max = 1.0
+                        blockIncrement = 0.1
+                        majorTickUnit = 0.5
+                    }
                 }
             }
         }
-        button("Reset")
+        hbox {
+            spacing = 5.0
+            vgrow = Priority.ALWAYS
+            alignment = Pos.BOTTOM_RIGHT
+
+            button("Reset ALL") {
+                action {
+                    SettingsPannelProperties.resetAll()
+                    HistogramEqualizationProperties.resetAll()
+                }
+            }
+        }
     }
 
     init {
@@ -120,23 +142,42 @@ class FilmTypeStringConverter : StringConverter<FilmTypes>() {
 }
 
 fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
-    add(label(name) {
-        addClass(Styles.propertyLabel)
-    })
-    add(hbox {
-        alignment = Pos.CENTER
+    add(
+        gridpane {
+            row {
+                label(name) {
+                    addClass(Styles.propertyLabel)
+                }
+                gridpaneConstraints {
+                    columnSpan = 2
+                }
+            }
+            row {
+                val slider = slider {
+                    isShowTickLabels = true
+                    isShowTickMarks = true
+                    isSnapToTicks = true
+                    useMaxWidth = true
 
-        val slider = slider {
-            useMaxWidth = true
-            hgrow = Priority.ALWAYS
-            valueProperty().bindBidirectional(property)
-        }
-        textfield {
-            prefWidth = 50.0
-            hgrow = Priority.NEVER
-            bind(property, false, NumberStringConverter())
-        }
+                    valueProperty().bindBidirectional(property)
+                }
+                textfield {
+                    bind(property, false, NumberStringConverter())
+                }
 
-        slider.op()
-    })
+                slider.op()
+            }
+            columnConstraints.addAll(
+                ColumnConstraints(
+                    0.0,
+                    LEFT_AND_RIGHT_WINDOWS_WIDTH - 50.0,
+                    Double.MAX_VALUE,
+                    Priority.ALWAYS,
+                    HPos.LEFT,
+                    true
+                ),
+                ColumnConstraints(50.0, 50.0, 50.0, Priority.NEVER, HPos.LEFT, true)
+            )
+        }
+    )
 }

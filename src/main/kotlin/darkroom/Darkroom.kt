@@ -86,12 +86,14 @@ object Darkroom {
                 adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+                adjustedImage = rotate(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
             FilmTypes.POSITIVE -> {
                 adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+                adjustedImage = rotate(adjustedImage)
                 HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
             }
         }
@@ -134,14 +136,14 @@ object Darkroom {
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
-        if (SettingsPannelProperties.lowLumLevel.value == 0.0 && SettingsPannelProperties.highLumLevel.value == 1.0) {
+        if (HistogramEqualizationProperties.lowLumLevel.value == 0.0 && HistogramEqualizationProperties.highLumLevel.value == 1.0) {
             return image
         }
 
         val levelsFilter = LevelsFilter()
 
-        levelsFilter.lowLevel = SettingsPannelProperties.lowLumLevel.floatValue()
-        levelsFilter.highLevel = SettingsPannelProperties.highLumLevel.floatValue()
+        levelsFilter.lowLevel = HistogramEqualizationProperties.lowLumLevel.floatValue()
+        levelsFilter.highLevel = HistogramEqualizationProperties.highLumLevel.floatValue()
 
         return levelsFilter.filter(image, null)
     }
@@ -152,8 +154,8 @@ object Darkroom {
         }
 
         val contrastFilter = ContrastFilter()
-        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue() + 1
-        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue() + 1
+        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue() / 2 + 1
+        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue() / 2 + 1
         return contrastFilter.filter(image, null)
     }
 
@@ -169,6 +171,7 @@ object Darkroom {
         return rotateFilter.filter(image, null)
     }
 
+    // TODO try jhlabs library
     private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {
         val adjustmentPlugin = ColorChannel()
 
