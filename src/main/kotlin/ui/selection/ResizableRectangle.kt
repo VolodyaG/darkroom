@@ -20,7 +20,12 @@ class ResizableRectangle(
 ) :
     Rectangle(x, y, width, height) {
 
+    var maxX: Double
+    var maxY: Double
+
     init {
+        maxX = group.layoutBounds.maxX
+        maxY = group.layoutBounds.maxY
         isVisible = false
 
         resizemark(Cursor.NW_RESIZE) { resizable ->
@@ -127,8 +132,7 @@ class ResizableRectangle(
     private fun moveBottomLine(resizable: ResizableRectangle, event: MouseEvent) {
         val yOffset = event.y - resizable.y
 
-        // Todo fix
-        if (yOffset >= 0 && yOffset <= resizable.endy()) {
+        if (yOffset >= 0 && yOffset + resizable.y <= maxY) {
             resizable.height = yOffset
         }
     }
@@ -143,8 +147,7 @@ class ResizableRectangle(
     private fun moveRightLine(resizable: ResizableRectangle, event: MouseEvent) {
         val xOffset = event.x - resizable.x
 
-        // Todo fix
-        if (xOffset >= 0 && xOffset <= resizable.endx() - 5) {
+        if (xOffset >= 0 && xOffset + resizable.x <= maxX) {
             resizable.width = xOffset
         }
     }
