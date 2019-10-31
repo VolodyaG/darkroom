@@ -1,7 +1,11 @@
 package darkroom
 
-import com.jhlabs.image.*
+import com.jhlabs.image.ContrastFilter
+import com.jhlabs.image.LevelsFilter
+import com.jhlabs.image.RotateFilter
+import convertToGrayScale
 import marvin.image.MarvinImage
+import marvinplugins.MarvinPluginCollection.invertColors
 import org.marvinproject.image.color.colorChannel.ColorChannel
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramChartsForFilm
@@ -62,7 +66,7 @@ object Darkroom {
                 var dataColors = Date()
                 println("Colors time: ${dataColors.time - dataInvert.time}ms")
 
-                adjustedImage = convertToGrayscale(colorfulImage)
+                adjustedImage = colorfulImage.convertToGrayScale()
                 var dataGray = Date()
                 println("Grayscale time: ${dataGray.time - dataColors.time}ms")
 
@@ -87,28 +91,32 @@ object Darkroom {
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
                 adjustedImage = rotate(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
                 adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
                 adjustedImage = doLuminosityEqualization(adjustedImage)
                 adjustedImage = adjustBrightnessAndContrast(adjustedImage)
                 adjustedImage = rotate(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(MarvinImage(adjustedImage))
+                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
             }
+        }
+
+        if (HistogramEqualizationProperties.highLightMaskEnabled() || HistogramEqualizationProperties.shadowsMaskEnabled()) {
+            adjustedImage = createClippingMask(adjustedImage)
         }
 
         return adjustedImage
     }
 
     private fun invertNegativeImage(image: BufferedImage): BufferedImage {
-        /*val marvinImage = MarvinImage(image)
+        val marvinImage = MarvinImage(image)
         invertColors(marvinImage)
         marvinImage.update()
-        return marvinImage.bufferedImage*/
+        return marvinImage.bufferedImage
 
-        val invertFilter = InvertFilter()
-        return invertFilter.filter(image, null)
+//        val invertFilter = InvertFilter()
+//        return invertFilter.filter(image, null)
 
         // TODO even longer than two above, try to parallel
         /*for (w in 0 until image.width) {
@@ -128,11 +136,6 @@ object Darkroom {
             }
         }
         return image;*/
-    }
-
-    private fun convertToGrayscale(image: BufferedImage): BufferedImage {
-        val grayscaleFilter = GrayscaleFilter()
-        return grayscaleFilter.filter(image, null)
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
@@ -189,5 +192,42 @@ object Darkroom {
 
     private fun getPrintName(): String {
         return "test${Math.random()}.png" // TODO: Replace with date
+    }
+
+    private fun createClippingMask(image: BufferedImage): BufferedImage {
+        val mask = BufferedImage(image.width, image.height, image.type)
+        val maskRaster = mask.raster
+        val imageRaster = image.raster
+
+        val maskForShadows = HistogramEqualizationProperties.shadowsMaskEnabled()
+        val maskForHighlights = HistogramEqualizationProperties.highLightMaskEnabled()
+
+        for (x in 0 until image.width) {
+            for (y in 0 until image.height) {
+                val pixel = IntArray(4)
+                imageRaster.getPixel(x, y, pixel)
+
+                maskRaster.setPixel(x, y, getNewPixelValueForClippingMask(pixel, maskForShadows, maskForHighlights))
+            }
+        }
+        return mask
+    }
+
+    private fun getNewPixelValueForClippingMask(pixel: IntArray, maskForShadows: Boolean, maskForHighlights: Boolean): IntArray {
+        return if (maskForHighlights) {
+            if ((pixel[0] == 255 || pixel[1] == 255 || pixel[2] == 255)) {
+                pixel
+            } else {
+                arrayOf(0, 0, 0, 255).toIntArray()
+            }
+        } else if (maskForShadows) {
+            if (pixel[0] == 0 || pixel[1] == 0 || pixel[2] == 0) {
+                pixel
+            } else {
+                arrayOf(255, 255, 255, 255).toIntArray()
+            }
+        } else {
+            throw IllegalStateException()
+        }
     }
 }

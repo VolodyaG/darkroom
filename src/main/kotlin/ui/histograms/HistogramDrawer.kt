@@ -22,23 +22,17 @@ private const val histogramHeight = FILM_PREVIEW_WINDOW_HEIGHT / 3
 
 object HistogramDrawer {
 
-    fun createHistogram(image: MarvinImage, isGrayscale: Boolean): BufferedImage {
-        return if (isGrayscale) {
-            createGrayscaleHisto(image)
-        } else {
-            createColorHisto(image.bufferedImageNoAlpha)
-        }
-    }
+    fun createGrayscaleHisto(image: BufferedImage): BufferedImage {
+        val marvinImage = MarvinImage(image)
 
-    private fun createGrayscaleHisto(image: MarvinImage): BufferedImage {
         val histogram = MarvinHistogram("")
         histogram.barWidth = 1
 
         val grayPixelsCounter = IntArray(256)
 
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                grayPixelsCounter[image.getIntComponent0(x, y)]++
+        for (x in 0 until marvinImage.width) {
+            for (y in 0 until marvinImage.height) {
+                grayPixelsCounter[marvinImage.getIntComponent0(x, y)]++
             }
         }
 
@@ -50,7 +44,7 @@ object HistogramDrawer {
         return histogram.getImage(histogramWidth.toInt(), histogramHeight.toInt())
     }
 
-    private fun createColorHisto(image: BufferedImage): BufferedImage {
+    fun createColorHisto(image: BufferedImage): BufferedImage {
         val raster = image.raster
         val dataset = createColorHistogramDataset(raster)
 

@@ -15,34 +15,34 @@ object HistogramChartsForFilm {
 
     fun buildHistogramsForBlackAndWhiteFilm(grayImage: BufferedImage, colorImage: BufferedImage) {
         runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(MarvinImage(grayImage))
-            val grayHisto = HistogramDrawer.createHistogram(regionToAnalise, true)
+            val regionToAnalise = crop10PercentOfTheImage(grayImage)
+            val grayHisto = HistogramDrawer.createGrayscaleHisto(regionToAnalise)
             greyHistogramView.set(grayHisto.toFxImage())
         }
 
         runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(MarvinImage(colorImage))
-            val colorHisto = HistogramDrawer.createHistogram(regionToAnalise, false)
+            val regionToAnalise = crop10PercentOfTheImage(colorImage)
+            val colorHisto = HistogramDrawer.createColorHisto(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
         }
     }
 
-    fun buildHistogramsForColorfulFilm(image: MarvinImage) {
+    fun buildHistogramsForColorfulFilm(image: BufferedImage) {
         val regionToAnalise = crop10PercentOfTheImage(image)
 
         runAsync(true) {
-            val grayHisto = HistogramDrawer.createHistogram(regionToAnalise.convertToGrayScale(), true)
+            val grayHisto = HistogramDrawer.createGrayscaleHisto(regionToAnalise.convertToGrayScale())
             greyHistogramView.set(grayHisto.toFxImage())
         }
 
         runAsync(true) {
-            val colorHisto = HistogramDrawer.createHistogram(regionToAnalise, false)
+            val colorHisto = HistogramDrawer.createColorHisto(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
         }
     }
 
-    private fun crop10PercentOfTheImage(image: MarvinImage): MarvinImage {
-        return image.subimage(
+    private fun crop10PercentOfTheImage(image: BufferedImage): BufferedImage {
+        return image.getSubimage(
             (image.width * 0.1).roundToInt(),
             (image.height * 0.1).roundToInt(),
             (image.width * 0.8).roundToInt(),

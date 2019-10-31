@@ -1,3 +1,4 @@
+import com.jhlabs.image.GrayscaleFilter
 import javafx.application.Application
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
@@ -25,6 +26,12 @@ fun main(args: Array<String>) {
 
 fun BufferedImage.toFxImage(): Image {
     return SwingFXUtils.toFXImage(this, null)
+}
+
+fun BufferedImage.convertToGrayScale(): BufferedImage {
+//    val grayImageBuffer = BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY)
+    val grayscaleFilter = GrayscaleFilter()
+    return grayscaleFilter.filter(this, null)
 }
 
 /*
