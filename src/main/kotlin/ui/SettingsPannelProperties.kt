@@ -13,7 +13,7 @@ object SettingsPannelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 
-    val isFiltersApplied = SimpleBooleanProperty(true)
+    val isCropVisible = SimpleBooleanProperty(false)
 
     val filmType = SimpleObjectProperty<FilmTypes>()
     val rotation = SimpleDoubleProperty()

@@ -3,6 +3,7 @@ package ui.selection
 import javafx.scene.Group
 import javafx.scene.image.ImageView
 import tornadofx.add
+import ui.SettingsPannelProperties
 import kotlin.math.abs
 
 /**
@@ -13,7 +14,7 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
     add(rectangle)
 
     imageView.setOnMousePressed { event ->
-        if (event.isSecondaryButtonDown) {
+        if (event.isSecondaryButtonDown || !SettingsPannelProperties.isCropVisible.value) {
             return@setOnMousePressed
         }
 
@@ -25,7 +26,7 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
     }
 
     imageView.setOnMouseReleased { event ->
-        if (event.isSecondaryButtonDown) {
+        if (event.isSecondaryButtonDown || !SettingsPannelProperties.isCropVisible.value) {
             return@setOnMouseReleased
         }
 

@@ -68,6 +68,8 @@ class SettingsPanelView : View() {
             }
             fold("Crop and Rotate", expanded = true) {
                 vbox {
+                    spacing = 5.0
+
                     settingsslider("Rotation Angle", SettingsPannelProperties.rotation) {
                         min = -180.0
                         max = 180.0
@@ -76,8 +78,13 @@ class SettingsPanelView : View() {
 
                         padding = Insets(0.0, 5.0, 0.0, 5.0)
                     }
-                    button("crop") {
+                    label("Crop") {
+                        addClass(Styles.propertyLabel)
+                    }
+                    // TODO replace with dropdown
+                    togglebutton("Show crop area") {
                         graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
+                        selectedProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
                     }
                 }
             }
@@ -105,12 +112,6 @@ class SettingsPanelView : View() {
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
 
-            togglebutton(FiltersToggleStringConverter.toggledText) {
-                isSelected = true
-
-                selectedProperty().bindBidirectional(SettingsPannelProperties.isFiltersApplied)
-                textProperty().bindBidirectional(selectedProperty(), FiltersToggleStringConverter())
-            }
             button("Reset ALL") {
                 action {
                     SettingsPannelProperties.resetAll()
