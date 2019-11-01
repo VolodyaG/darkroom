@@ -20,9 +20,7 @@ class MainView : View("Darkroom") {
     private var selectionRectangle: ResizableRectangle = ResizableRectangle(Group())
 
     override val root = gridpane {
-        hgap = 10.0
-        vgap = 10.0
-        padding = insets(10)
+        addClass(Styles.mainContainer)
 
         row {
             add(HistogramPanelView())
@@ -36,8 +34,8 @@ class MainView : View("Darkroom") {
                         isPreserveRatio = true
                     }
                     selectionRectangle = imageviewselection(mainImageView) {
-                        visibleProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
-                        rectangleProperty().bindBidirectional(SettingsPannelProperties.cropArea)
+                        visibleProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
+                        rectangleProperty().bindBidirectional(SettingsPanelProperties.cropArea)
 
                         style {
                             stroke = Color.RED
@@ -81,7 +79,7 @@ class MainView : View("Darkroom") {
 
         columnConstraints.addAll(
             ColumnConstraints(
-                LEFT_AND_RIGHT_WINDOWS_WIDTH, LEFT_AND_RIGHT_WINDOWS_WIDTH, LEFT_AND_RIGHT_WINDOWS_WIDTH,
+                LEFT_AND_RIGHT_WINDOWS_WIDTH + 40, LEFT_AND_RIGHT_WINDOWS_WIDTH + 40, LEFT_AND_RIGHT_WINDOWS_WIDTH + 40,
                 Priority.NEVER, HPos.CENTER, true
             ),
             ColumnConstraints(

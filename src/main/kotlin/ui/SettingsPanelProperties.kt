@@ -9,8 +9,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.scene.shape.Rectangle
 import java.io.File
 
-// TODO fix naming
-object SettingsPannelProperties {
+object SettingsPanelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 

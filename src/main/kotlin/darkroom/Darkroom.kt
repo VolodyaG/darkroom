@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 import marvin.image.MarvinImage
 import org.marvinproject.image.color.colorChannel.ColorChannel
 import ui.FILM_PREVIEW_WINDOW_WIDTH
-import ui.SettingsPannelProperties
+import ui.SettingsPanelProperties
 import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
@@ -65,7 +65,7 @@ object Darkroom {
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
         var adjustedImage = image
 
-        when (SettingsPannelProperties.filmType.value!!) {
+        when (SettingsPanelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
                 var dataBefore = Date()
 
@@ -173,18 +173,18 @@ object Darkroom {
     }
 
     private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
-        if (SettingsPannelProperties.contrast.value == 0.0 && SettingsPannelProperties.brightness.value == 0.0) {
+        if (SettingsPanelProperties.contrast.value == 0.0 && SettingsPanelProperties.brightness.value == 0.0) {
             return image
         }
 
         val contrastFilter = ContrastFilter()
-        contrastFilter.contrast = SettingsPannelProperties.contrast.floatValue() / 2 + 1
-        contrastFilter.brightness = SettingsPannelProperties.brightness.floatValue() / 2 + 1
+        contrastFilter.contrast = SettingsPanelProperties.contrast.floatValue() / 2 + 1
+        contrastFilter.brightness = SettingsPanelProperties.brightness.floatValue() / 2 + 1
         return contrastFilter.filter(image, null)
     }
 
     private fun rotate(image: BufferedImage): BufferedImage {
-        val degreeAngle = SettingsPannelProperties.rotation.value
+        val degreeAngle = SettingsPanelProperties.rotation.value
 
         if (degreeAngle == 0.0) {
             return image
@@ -212,11 +212,11 @@ object Darkroom {
     }
 
     private fun cropImage(image: BufferedImage, originalImage: BufferedImage): BufferedImage {
-        if (!SettingsPannelProperties.isCropVisible.value) {
+        if (!SettingsPanelProperties.isCropVisible.value) {
             return image
         }
 
-        val area = SettingsPannelProperties.cropArea.value
+        val area = SettingsPanelProperties.cropArea.value
         val scaleFactor = originalImage.width / FILM_PREVIEW_WINDOW_WIDTH
         val x = (area.x * scaleFactor).toInt()
         val y = (area.y * scaleFactor).toInt()

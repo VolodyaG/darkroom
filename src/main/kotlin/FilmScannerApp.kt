@@ -11,7 +11,7 @@ class MyApp : App(MainView::class, Styles::class) {
     override fun start(stage: Stage) {
         with(stage) {
             minWidth = FILM_PREVIEW_WINDOW_WIDTH + LEFT_AND_RIGHT_WINDOWS_WIDTH * 1.7
-            minHeight = FILM_PREVIEW_WINDOW_HEIGHT + 85
+            minHeight = FILM_PREVIEW_WINDOW_HEIGHT + 100
             width = minWidth
             height = minHeight
 

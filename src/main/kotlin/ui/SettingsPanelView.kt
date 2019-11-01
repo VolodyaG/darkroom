@@ -9,18 +9,14 @@ import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.stage.PopupWindow
 import javafx.util.converter.NumberStringConverter
-import org.controlsfx.control.PopOver
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
-import ui.converters.FiltersToggleStringConverter
 import ui.histograms.HistogramEqualizationProperties
 
 class SettingsPanelView : View() {
@@ -44,7 +40,7 @@ class SettingsPanelView : View() {
                         spacing = 5.0
                         alignment = Pos.CENTER_LEFT
 
-                        label(SettingsPannelProperties.printsFolder)
+                        label(SettingsPanelProperties.printsFolder)
                         button {
                             useMaxWidth = true
                             graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)
@@ -73,7 +69,7 @@ class SettingsPanelView : View() {
                 vbox {
                     spacing = 5.0
 
-                    settingsslider("Rotation Angle", SettingsPannelProperties.rotation) {
+                    settingsslider("Rotation Angle", SettingsPanelProperties.rotation) {
                         min = -180.0
                         max = 180.0
                         blockIncrement = 90.0
@@ -89,11 +85,11 @@ class SettingsPanelView : View() {
 
                         togglebutton("Show crop area") {
                             graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
-                            selectedProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
+                            selectedProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
                         }
                         button("Reset to default") {
                             action {
-                                SettingsPannelProperties.resetCropArea()
+                                SettingsPanelProperties.resetCropArea()
                             }
                         }
                         label {
@@ -117,13 +113,13 @@ class SettingsPanelView : View() {
                 vbox {
                     spacing = 5.0
 
-                    settingsslider("Contrast", SettingsPannelProperties.contrast) {
+                    settingsslider("Contrast", SettingsPanelProperties.contrast) {
                         min = -1.0
                         max = 1.0
                         blockIncrement = 0.1
                         majorTickUnit = 0.5
                     }
-                    settingsslider("Brightness", SettingsPannelProperties.brightness) {
+                    settingsslider("Brightness", SettingsPanelProperties.brightness) {
                         min = -1.0
                         max = 1.0
                         blockIncrement = 0.1
@@ -139,7 +135,7 @@ class SettingsPanelView : View() {
 
             button("Reset all") {
                 action {
-                    SettingsPannelProperties.resetAll()
+                    SettingsPanelProperties.resetAll()
                     HistogramEqualizationProperties.resetAll()
                 }
             }
@@ -149,7 +145,7 @@ class SettingsPanelView : View() {
     init {
         Bindings.bindBidirectional(
             toggleGroup.selectedValueProperty<String>(),
-            SettingsPannelProperties.filmType,
+            SettingsPanelProperties.filmType,
             FilmTypeStringConverter()
         )
     }
@@ -159,7 +155,7 @@ class SettingsPanelView : View() {
             title = "Choose prints folder"
         }
         if (chosenDirectory != null) {
-            SettingsPannelProperties.changePrintsLocation(chosenDirectory)
+            SettingsPanelProperties.changePrintsLocation(chosenDirectory)
         }
     }
 }
