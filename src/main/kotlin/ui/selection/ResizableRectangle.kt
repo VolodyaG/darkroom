@@ -86,7 +86,7 @@ class ResizableRectangle(
             bindMiddleY(this)
             setOnMouseDragged { event -> moveLeftLine(resizable, event) }
         }
-        resizemark(Cursor.DEFAULT) { resizable ->
+        resizemark(Cursor.DEFAULT) {
             bindMiddleX(this)
             bindMiddleY(this)
         }

@@ -23,22 +23,22 @@ class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
 
     override val root = vbox {
-        spacing = 5.0
-        alignment = Pos.TOP_RIGHT
+        addClass(Styles.boxWithSpacing)
 
         squeezebox {
             fillHeight = false
 
             fold("General", expanded = true) {
                 vbox {
-                    spacing = 5.0 // TODO put all spacings somewhere, ideally to styles
+                    addClass(Styles.boxWithSpacing)
 
                     label("Save to") {
                         addClass(Styles.propertyLabel)
                     }
                     hbox {
-                        spacing = 5.0
                         alignment = Pos.CENTER_LEFT
+
+                        addClass(Styles.boxWithSpacing)
 
                         label(SettingsPanelProperties.printsFolder)
                         button {
@@ -56,8 +56,9 @@ class SettingsPanelView : View() {
                         addClass(Styles.propertyLabel)
                     }
                     hbox {
-                        spacing = 5.0
                         alignment = Pos.CENTER
+
+                        addClass(Styles.boxWithSpacing)
 
                         radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup)
                         radiobutton(FilmTypes.COLOR_NEGATIVE.displayName, toggleGroup)
@@ -67,7 +68,7 @@ class SettingsPanelView : View() {
             }
             fold("Crop and Rotate", expanded = true) {
                 vbox {
-                    spacing = 5.0
+                    addClass(Styles.boxWithSpacing)
 
                     settingsslider("Rotation Angle", SettingsPanelProperties.rotation) {
                         min = -180.0
@@ -81,7 +82,7 @@ class SettingsPanelView : View() {
                         addClass(Styles.propertyLabel)
                     }
                     hbox {
-                        spacing = 5.0
+                        addClass(Styles.boxWithSpacing)
 
                         togglebutton("Show crop area") {
                             graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
@@ -111,7 +112,7 @@ class SettingsPanelView : View() {
             }
             fold("Adjust Color", expanded = true) {
                 vbox {
-                    spacing = 5.0
+                    addClass(Styles.boxWithSpacing)
 
                     settingsslider("Contrast", SettingsPanelProperties.contrast) {
                         min = -1.0
@@ -129,9 +130,10 @@ class SettingsPanelView : View() {
             }
         }
         hbox {
-            spacing = 5.0
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
+
+            addClass(Styles.boxWithSpacing)
 
             button("Reset all") {
                 action {
@@ -188,12 +190,8 @@ fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider
             }
             columnConstraints.addAll(
                 ColumnConstraints(
-                    0.0,
-                    LEFT_AND_RIGHT_WINDOWS_WIDTH - 50.0,
-                    Double.MAX_VALUE,
-                    Priority.ALWAYS,
-                    HPos.LEFT,
-                    true
+                    0.0, LEFT_AND_RIGHT_WINDOWS_WIDTH - 50.0, Double.MAX_VALUE,
+                    Priority.ALWAYS, HPos.LEFT, true
                 ),
                 ColumnConstraints(50.0, 50.0, 50.0, Priority.NEVER, HPos.LEFT, true)
             )
