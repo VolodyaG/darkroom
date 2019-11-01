@@ -36,6 +36,9 @@ class MainView : View("Darkroom") {
                         isPreserveRatio = true
                     }
                     selectionRectangle = imageviewselection(mainImageView) {
+                        visibleProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
+                        rectangleProperty().bindBidirectional(SettingsPannelProperties.cropArea)
+
                         style {
                             stroke = Color.RED
                             strokeWidth = 1.px

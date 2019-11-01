@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.scene.shape.Rectangle
 import java.io.File
 
 // TODO fix naming
@@ -13,10 +14,13 @@ object SettingsPannelProperties {
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 
-    val isCropVisible = SimpleBooleanProperty(false)
-
     val filmType = SimpleObjectProperty<FilmTypes>()
+
     val rotation = SimpleDoubleProperty()
+
+    val isCropVisible = SimpleBooleanProperty()
+    val cropArea = SimpleObjectProperty<Rectangle>()
+
     val brightness = SimpleDoubleProperty()
     val contrast = SimpleDoubleProperty()
 
@@ -28,6 +32,10 @@ object SettingsPannelProperties {
         setInitialValues()
     }
 
+    fun resetCropArea() {
+        cropArea.value = Rectangle(7.0, 15.0, 800 - 7.0 - 7.0, 600 - 15.0 - 25.0)
+    }
+
     fun changePrintsLocation(newLocation: File) {
         PrintSettings.folderToSave = newLocation
         printsFolder.set(newLocation.canonicalPath)
@@ -36,7 +44,10 @@ object SettingsPannelProperties {
     private fun setInitialValues() {
         filmType.value = FilmTypes.BLACK_AND_WHITE
         rotation.value = 0.0
+        isCropVisible.value = false
         brightness.value = 0.0
         contrast.value = 0.0
+
+        resetCropArea()
     }
 }

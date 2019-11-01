@@ -1,6 +1,7 @@
 package darkroom
 
 import com.jhlabs.image.ContrastFilter
+import com.jhlabs.image.CropFilter
 import com.jhlabs.image.LevelsFilter
 import com.jhlabs.image.RotateFilter
 import convertToGrayScale
@@ -9,6 +10,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import marvin.image.MarvinImage
 import org.marvinproject.image.color.colorChannel.ColorChannel
+import ui.FILM_PREVIEW_WINDOW_WIDTH
 import ui.SettingsPannelProperties
 import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
@@ -47,9 +49,14 @@ object Darkroom {
                 scan = FilmScanner.scanInFullResolution()
             }
 
-            val print = doImageProcessing(scan)
             val filePath = "${PrintSettings.folderToSave.path}/${getPrintName()}"
-            ImageIO.write(print, "PNG", File(filePath))
+
+            val adjustedImage = doImageProcessing(scan)
+            var dataBefore = Date()
+            val croppedImage = cropImage(adjustedImage, scan)
+            println("Crop time: ${Date().time - dataBefore.time}ms")
+
+            ImageIO.write(croppedImage, "PNG", File(filePath))
         } finally {
             isPrinting = false
         }
@@ -131,7 +138,13 @@ object Darkroom {
         }
 
         val secondHalfWorker = GlobalScope.async {
-            val pixels = imageRaster.getPixels(halfOfTheImageWidth, 0, image.width - halfOfTheImageWidth, image.height, IntArray(pixelsInHalfImage))
+            val pixels = imageRaster.getPixels(
+                halfOfTheImageWidth,
+                0,
+                image.width - halfOfTheImageWidth,
+                image.height,
+                IntArray(pixelsInHalfImage)
+            )
             pixels.forEachIndexed { index, i ->
                 pixels[index] = 255 - i
             }
@@ -198,6 +211,22 @@ object Darkroom {
         return adjustedImage
     }
 
+    private fun cropImage(image: BufferedImage, originalImage: BufferedImage): BufferedImage {
+        if (!SettingsPannelProperties.isCropVisible.value) {
+            return image
+        }
+
+        val area = SettingsPannelProperties.cropArea.value
+        val scaleFactor = originalImage.width / FILM_PREVIEW_WINDOW_WIDTH
+        val x = (area.x * scaleFactor).toInt()
+        val y = (area.y * scaleFactor).toInt()
+        val width = (area.width * scaleFactor).toInt()
+        val height = (area.height * scaleFactor).toInt()
+
+        val cropFilter = CropFilter(x, y, width, height)
+        return cropFilter.filter(image, null)
+    }
+
     private fun getPrintName(): String {
         return "test${Math.random()}.png" // TODO: Replace with date
     }
@@ -221,7 +250,11 @@ object Darkroom {
         return mask
     }
 
-    private fun getNewPixelValueForClippingMask(pixel: IntArray, maskForShadows: Boolean, maskForHighlights: Boolean): IntArray {
+    private fun getNewPixelValueForClippingMask(
+        pixel: IntArray,
+        maskForShadows: Boolean,
+        maskForHighlights: Boolean
+    ): IntArray {
         return if (maskForHighlights) {
             if ((pixel[0] == 255 || pixel[1] == 255 || pixel[2] == 255)) {
                 pixel

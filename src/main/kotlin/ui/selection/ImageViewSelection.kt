@@ -1,9 +1,9 @@
 package ui.selection
 
+import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.image.ImageView
 import tornadofx.add
-import ui.SettingsPannelProperties
 import kotlin.math.abs
 
 /**
@@ -13,20 +13,39 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
     val rectangle = ResizableRectangle(this)
     add(rectangle)
 
+    rectangle.setOnMouseEntered { cursor = Cursor.HAND }
+    rectangle.setOnMouseReleased { cursor = Cursor.HAND }
+    rectangle.setOnMouseExited { cursor = Cursor.DEFAULT }
+    rectangle.setOnMousePressed { event ->
+        MouseClick.set(event.x, event.y)
+        cursor = Cursor.MOVE
+    }
+    rectangle.setOnMouseDragged { event ->
+        val newX = rectangle.x + event.x - MouseClick.x
+        val newY = rectangle.y + event.y - MouseClick.y
+
+        if (newX >= 0 && newX + rectangle.width <= imageView.boundsInLocal.width) {
+            rectangle.x = newX
+        }
+        if (newY >= 0 && newY + rectangle.height <= imageView.boundsInLocal.height) {
+            rectangle.y = newY
+        }
+
+        MouseClick.set(event.x, event.y)
+    }
+
     imageView.setOnMousePressed { event ->
-        if (event.isSecondaryButtonDown || !SettingsPannelProperties.isCropVisible.value) {
+        if (event.isSecondaryButtonDown) {
             return@setOnMousePressed
         }
 
         rectangle.isVisible = false
         rectangle.x = event.x
         rectangle.y = event.y
-        rectangle.maxX = imageView.layoutBounds.maxX
-        rectangle.maxY = imageView.layoutBounds.maxY
     }
 
     imageView.setOnMouseReleased { event ->
-        if (event.isSecondaryButtonDown || !SettingsPannelProperties.isCropVisible.value) {
+        if (event.isSecondaryButtonDown) {
             return@setOnMouseReleased
         }
 
@@ -46,4 +65,14 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
 
     rectangle.op()
     return rectangle
+}
+
+private object MouseClick {
+    var x: Double = 0.0
+    var y: Double = 0.0
+
+    fun set(x: Double, y: Double) {
+        this.x = x
+        this.y = y
+    }
 }

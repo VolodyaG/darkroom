@@ -9,12 +9,15 @@ import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
+import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
+import javafx.stage.PopupWindow
 import javafx.util.converter.NumberStringConverter
+import org.controlsfx.control.PopOver
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.converters.FiltersToggleStringConverter
@@ -81,10 +84,32 @@ class SettingsPanelView : View() {
                     label("Crop") {
                         addClass(Styles.propertyLabel)
                     }
-                    // TODO replace with dropdown
-                    togglebutton("Show crop area") {
-                        graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
-                        selectedProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
+                    hbox {
+                        spacing = 5.0
+
+                        togglebutton("Show crop area") {
+                            graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
+                            selectedProperty().bindBidirectional(SettingsPannelProperties.isCropVisible)
+                        }
+                        button("Reset to default") {
+                            action {
+                                SettingsPannelProperties.resetCropArea()
+                            }
+                        }
+                        label {
+                            graphic = FontAwesomeIconView(FontAwesomeIcon.INFO_CIRCLE)
+                            alignment = Pos.CENTER_RIGHT
+                            hgrow = Priority.ALWAYS
+                            useMaxSize = true
+
+                            style {
+                                fontSize = 16.px
+                            }
+
+                            onHover {
+                                // TODO show tooltip
+                            }
+                        }
                     }
                 }
             }
@@ -112,7 +137,7 @@ class SettingsPanelView : View() {
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
 
-            button("Reset ALL") {
+            button("Reset all") {
                 action {
                     SettingsPannelProperties.resetAll()
                     HistogramEqualizationProperties.resetAll()

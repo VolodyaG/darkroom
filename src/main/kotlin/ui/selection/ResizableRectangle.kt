@@ -1,11 +1,13 @@
 package ui.selection
 
+import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import tornadofx.add
+import tornadofx.onChange
 import tornadofx.style
 
 /**
@@ -20,12 +22,16 @@ class ResizableRectangle(
 ) :
     Rectangle(x, y, width, height) {
 
-    var maxX: Double
-    var maxY: Double
+    private val maxX = group.boundsInLocal.maxX
+    private val maxY = group.boundsInLocal.maxY
+
+    private val rectangleProperty = SimpleObjectProperty(Rectangle())
+
+    fun rectangleProperty(): SimpleObjectProperty<Rectangle> {
+        return rectangleProperty
+    }
 
     init {
-        maxX = group.layoutBounds.maxX
-        maxY = group.layoutBounds.maxY
         isVisible = false
 
         resizemark(Cursor.NW_RESIZE) { resizable ->
@@ -54,7 +60,7 @@ class ResizableRectangle(
             bindMiddleY(this)
             setOnMouseDragged { event -> moveRightLine(resizable, event) }
         }
-        resizemark(Cursor.SE_RESIZE) {resizable ->
+        resizemark(Cursor.SE_RESIZE) { resizable ->
             bindRightX(this)
             bindBottomY(this)
             setOnMouseDragged { event ->
@@ -67,7 +73,7 @@ class ResizableRectangle(
             bindBottomY(this)
             setOnMouseDragged { event -> moveBottomLine(resizable, event) }
         }
-        resizemark(Cursor.SW_RESIZE) {resizable ->
+        resizemark(Cursor.SW_RESIZE) { resizable ->
             bindLeftX(this)
             bindBottomY(this)
             setOnMouseDragged { event ->
@@ -80,6 +86,12 @@ class ResizableRectangle(
             bindMiddleY(this)
             setOnMouseDragged { event -> moveLeftLine(resizable, event) }
         }
+        resizemark(Cursor.DEFAULT) { resizable ->
+            bindMiddleX(this)
+            bindMiddleY(this)
+        }
+
+        rectangleProperty.onChange { newRectangle -> bindRectangleProperties(newRectangle) }
     }
 
     fun endx(): Double {
@@ -88,6 +100,16 @@ class ResizableRectangle(
 
     fun endy(): Double {
         return y + height
+    }
+
+    private fun bindRectangleProperties(newRectangle: Rectangle?) {
+        if (newRectangle == null) {
+            return
+        }
+        xProperty().bindBidirectional(newRectangle.xProperty())
+        yProperty().bindBidirectional(newRectangle.yProperty())
+        widthProperty().bindBidirectional(newRectangle.widthProperty())
+        heightProperty().bindBidirectional(newRectangle.heightProperty())
     }
 
     private fun bindLeftX(marker: Rectangle) {
@@ -102,7 +124,7 @@ class ResizableRectangle(
         )
     }
 
-    private fun bindRightX(marker: Rectangle){
+    private fun bindRightX(marker: Rectangle) {
         marker.xProperty().bind(xProperty().add(widthProperty()).subtract(marker.widthProperty().divide(2.0)))
     }
 
@@ -110,7 +132,7 @@ class ResizableRectangle(
         marker.yProperty().bind(yProperty().subtract(marker.heightProperty().divide(2.0)))
     }
 
-    private fun bindMiddleY(marker: Rectangle){
+    private fun bindMiddleY(marker: Rectangle) {
         marker.yProperty().bind(
             yProperty()
                 .add(heightProperty().divide(2.0))
@@ -118,7 +140,7 @@ class ResizableRectangle(
         )
     }
 
-    private fun bindBottomY(marker: Rectangle){
+    private fun bindBottomY(marker: Rectangle) {
         marker.yProperty().bind(yProperty().add(heightProperty()).subtract(marker.heightProperty().divide(2.0)))
     }
 
@@ -154,7 +176,7 @@ class ResizableRectangle(
 }
 
 private fun ResizableRectangle.resizemark(cursor: Cursor, op: Rectangle.(resizable: ResizableRectangle) -> Unit = {}) {
-    val size = 20.0
+    val size = 14.0
     val rectangle = Rectangle(size, size)
 
     rectangle.op(this)
