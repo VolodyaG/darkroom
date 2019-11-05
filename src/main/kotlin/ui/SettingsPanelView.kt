@@ -4,17 +4,11 @@ import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.control.Slider
 import javafx.scene.control.ToggleGroup
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.util.converter.NumberStringConverter
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.histograms.HistogramEqualizationProperties
@@ -160,41 +154,4 @@ class SettingsPanelView : View() {
             SettingsPanelProperties.changePrintsLocation(chosenDirectory)
         }
     }
-}
-
-fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
-    add(
-        gridpane {
-            row {
-                label(name) {
-                    addClass(Styles.propertyLabel)
-                }
-                gridpaneConstraints {
-                    columnSpan = 2
-                }
-            }
-            row {
-                val slider = slider {
-                    isShowTickLabels = true
-                    isShowTickMarks = true
-                    isSnapToTicks = true
-                    useMaxWidth = true
-
-                    valueProperty().bindBidirectional(property)
-                }
-                textfield {
-                    bind(property, false, NumberStringConverter())
-                }
-
-                slider.op()
-            }
-            columnConstraints.addAll(
-                ColumnConstraints(
-                    0.0, LEFT_AND_RIGHT_WINDOWS_WIDTH - 50.0, Double.MAX_VALUE,
-                    Priority.ALWAYS, HPos.LEFT, true
-                ),
-                ColumnConstraints(50.0, 50.0, 50.0, Priority.NEVER, HPos.LEFT, true)
-            )
-        }
-    )
 }

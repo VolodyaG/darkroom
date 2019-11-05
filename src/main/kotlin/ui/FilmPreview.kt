@@ -20,7 +20,7 @@ object FilmPreview : SimpleObjectProperty<Image>() {
 
 
     init {
-        Timer(true).scheduleAtFixedRate(500, 1000) {
+        Timer(true).scheduleAtFixedRate(500, 500) {
             val newFrame = getPreviewFrame()
             if (currentFrame != newFrame) {
                 currentFrame = newFrame

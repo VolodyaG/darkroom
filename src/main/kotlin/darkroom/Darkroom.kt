@@ -16,12 +16,15 @@ import ui.histograms.HistogramChartsForFilm
 import ui.histograms.HistogramEqualizationProperties
 import java.awt.image.BufferedImage
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
 private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
 
 object Darkroom {
+    private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
@@ -228,7 +231,7 @@ object Darkroom {
     }
 
     private fun getPrintName(): String {
-        return "test${Math.random()}.png" // TODO: Replace with date
+        return "${formatter.format(Date())}.png"
     }
 
     private fun createClippingMask(image: BufferedImage): BufferedImage {

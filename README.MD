@@ -13,7 +13,7 @@
 * Rotation and crop
 * Magnifying glass
 
-![Screenshot](https://github.com/VolodyaG/darkroom/tree/master/src/main/resources/Screen%201.png)
+![Screenshot](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%201.png)
 
 #### To do:
 * [ ] Auto levels

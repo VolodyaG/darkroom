@@ -2,19 +2,16 @@ package ui.histograms
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.image.Image
-import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
 import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
 import tornadofx.*
-import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
 import ui.Styles
+import ui.colorchannelslider
 
 val textInputWidth = 50.0
 
@@ -84,6 +81,8 @@ class HistogramPanelView : View() {
                         }
                     }
                     hbox {
+                        addClass(Styles.boxWithSpacing)
+
                         togglebutton("S") {
                             graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
 
@@ -94,7 +93,6 @@ class HistogramPanelView : View() {
                         }
                         togglebutton("H") {
                             graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
-                            alignment = Pos.BOTTOM_RIGHT
 
                             selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableHighlightsMask)
                             action {
@@ -115,42 +113,4 @@ class HistogramPanelView : View() {
             }
         }
     }
-}
-
-fun Pane.colorchannelslider(
-    channelProperty: SimpleObjectProperty<Number>,
-    leftLabel: String,
-    rightLabel: String,
-    op: VBox.() -> Unit = {}
-) {
-    val node = vbox {
-        hbox {
-            maxWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
-
-            label(leftLabel) {
-                useMaxWidth = true
-                hgrow = Priority.ALWAYS
-                textFill = c(leftLabel).darker()
-            }
-            label(rightLabel) {
-                textFill = c(rightLabel)
-            }
-        }
-        hbox {
-            alignment = Pos.CENTER
-
-            slider(-50.0, 50.0) {
-                useMaxWidth = true
-                prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
-
-                valueProperty().bindBidirectional(channelProperty) // Todo inc by 1
-            }
-            textfield {
-                maxWidth = textInputWidth
-                bind(channelProperty, false, NumberStringConverter())
-            }
-        }
-    }
-    add(node)
-    node.op()
 }
