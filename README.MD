@@ -13,11 +13,13 @@
 * Rotation and crop
 * Magnifying glass
 
-![Screenshot](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%201.png)
+![Black-and-white](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%201.png)
+
+![Color-with-crop](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%202.png)
+
+![Positive-with-magnifier](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%203.png)
 
 #### To do:
-* [ ] Auto levels
-* [ ] Selection area adjustments on rotate
-* [ ] UI theme/style
 * [ ] Colors adjustment OFF button
-* [ ] Progress bar fix 
+* [ ] Progress bar fix
+* [ ] UI theme/style

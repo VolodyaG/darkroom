@@ -1,6 +1,8 @@
 package ui.selection
 
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.value.ObservableValue
 import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.input.MouseEvent
@@ -26,9 +28,14 @@ class ResizableRectangle(
     private val maxY = group.boundsInLocal.maxY
 
     private val rectangleProperty = SimpleObjectProperty(Rectangle())
+    private val angleProperty = SimpleDoubleProperty()
 
     fun rectangleProperty(): SimpleObjectProperty<Rectangle> {
         return rectangleProperty
+    }
+
+    fun angleProperty(): SimpleDoubleProperty {
+        return angleProperty
     }
 
     init {
@@ -102,6 +109,10 @@ class ResizableRectangle(
         return y + height
     }
 
+    fun onAngleChanged(listener: (ObservableValue<out Number>?, oldValue: Number, newValue: Number) -> Unit) {
+        angleProperty.addListener(listener)
+    }
+
     private fun bindRectangleProperties(newRectangle: Rectangle?) {
         if (newRectangle == null) {
             return
@@ -110,6 +121,7 @@ class ResizableRectangle(
         yProperty().bindBidirectional(newRectangle.yProperty())
         widthProperty().bindBidirectional(newRectangle.widthProperty())
         heightProperty().bindBidirectional(newRectangle.heightProperty())
+        angleProperty().bindBidirectional(newRectangle.rotateProperty())
     }
 
     private fun bindLeftX(marker: Rectangle) {

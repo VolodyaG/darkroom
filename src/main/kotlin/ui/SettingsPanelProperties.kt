@@ -2,10 +2,7 @@ package ui
 
 import darkroom.FilmTypes
 import darkroom.PrintSettings
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
 import javafx.scene.shape.Rectangle
 import java.io.File
 
@@ -19,6 +16,8 @@ object SettingsPanelProperties {
 
     val isCropVisible = SimpleBooleanProperty()
     val cropArea = SimpleObjectProperty<Rectangle>()
+    val cropAreaAngle: DoubleProperty
+        get() = cropArea.value.rotateProperty()
 
     val brightness = SimpleDoubleProperty()
     val contrast = SimpleDoubleProperty()

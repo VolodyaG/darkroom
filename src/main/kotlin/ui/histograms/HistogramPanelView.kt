@@ -3,6 +3,7 @@ package ui.histograms
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.value.ObservableValue
+import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.image.Image
@@ -80,23 +81,28 @@ class HistogramPanelView : View() {
                             bind(HistogramEqualizationProperties.highLumLevel, false, NumberStringConverter())
                         }
                     }
-                    hbox {
-                        addClass(Styles.boxWithSpacing)
+                    gridpane {
+                        row {
+                            togglebutton("S") {
+                                graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
 
-                        togglebutton("S") {
-                            graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
-
-                            selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableShadowsMask)
-                            action {
-                                HistogramEqualizationProperties.enableHighlightsMask.set(false)
+                                selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableShadowsMask)
+                                action {
+                                    HistogramEqualizationProperties.enableHighlightsMask.set(false)
+                                }
                             }
-                        }
-                        togglebutton("H") {
-                            graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
+                            togglebutton("H") {
+                                graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
 
-                            selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableHighlightsMask)
-                            action {
-                                HistogramEqualizationProperties.enableShadowsMask.set(false)
+                                selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableHighlightsMask)
+                                action {
+                                    HistogramEqualizationProperties.enableShadowsMask.set(false)
+                                }
+
+                                gridpaneColumnConstraints {
+                                    hgrow = Priority.ALWAYS
+                                    halignment = HPos.RIGHT
+                                }
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package ui.selection
 
+import javafx.beans.value.ObservableValue
 import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.image.ImageView
@@ -32,6 +33,29 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
         }
 
         MouseClick.set(event.x, event.y)
+    }
+    rectangle.onAngleChanged { _: ObservableValue<out Number>?, oldValue: Number, newValue: Number ->
+        val oldAngle = oldValue.toInt()
+        val newAngle = newValue.toInt()
+        val angleDifference = oldAngle - newAngle
+
+        val xOffset = imageView.layoutBounds.maxX - rectangle.endx()
+        val yOffset = imageView.layoutBounds.maxY - rectangle.endy()
+
+        if (abs(oldAngle - newAngle) == 180) {
+            rectangle.x = xOffset
+            rectangle.y = yOffset
+        }
+
+        if (angleDifference == -90 || angleDifference == 270) {
+            rectangle.x = yOffset.also { rectangle.y = rectangle.x }
+            rectangle.width = rectangle.height.also { rectangle.height = rectangle.width }
+        }
+
+        if (angleDifference == 90 || angleDifference == -270) {
+            rectangle.x = rectangle.y.also { rectangle.y = xOffset }
+            rectangle.width = rectangle.height.also { rectangle.height = rectangle.width }
+        }
     }
 
     imageView.setOnMousePressed { event ->

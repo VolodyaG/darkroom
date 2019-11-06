@@ -7,11 +7,14 @@ import javafx.beans.binding.Bindings
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
+import javafx.scene.control.OverrunStyle
 import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.histograms.HistogramEqualizationProperties
+import kotlin.math.abs
 
 class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
@@ -34,7 +37,9 @@ class SettingsPanelView : View() {
 
                         addClass(Styles.boxWithSpacing)
 
-                        label(SettingsPanelProperties.printsFolder)
+                        label(SettingsPanelProperties.printsFolder) {
+                            textOverrun = OverrunStyle.LEADING_ELLIPSIS
+                        }
                         button {
                             useMaxWidth = true
                             graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)
@@ -54,9 +59,15 @@ class SettingsPanelView : View() {
 
                         addClass(Styles.boxWithSpacing)
 
-                        radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup)
-                        radiobutton(FilmTypes.COLOR_NEGATIVE.displayName, toggleGroup)
-                        radiobutton(FilmTypes.POSITIVE.displayName, toggleGroup)
+                        radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup) {
+                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+                        }
+                        radiobutton(FilmTypes.COLOR_NEGATIVE.displayName, toggleGroup) {
+                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+                        }
+                        radiobutton(FilmTypes.POSITIVE.displayName, toggleGroup) {
+                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+                        }
                     }
                 }
             }
@@ -71,6 +82,19 @@ class SettingsPanelView : View() {
                         majorTickUnit = 90.0
 
                         padding = Insets(0.0, 5.0, 0.0, 5.0)
+
+                        valueProperty().mutateOnChange { number ->
+                            val angle = number!!.toDouble()
+                            val positive = if (angle > 0) 1 else -1
+
+                            if (abs(angle) <= 45) {
+                                return@mutateOnChange 0 * positive
+                            }
+                            if (abs(angle) > 45 && abs(angle) <= 135) {
+                                return@mutateOnChange 90 * positive
+                            }
+                            return@mutateOnChange 180 * positive
+                        }
                     }
                     label("Crop") {
                         addClass(Styles.propertyLabel)

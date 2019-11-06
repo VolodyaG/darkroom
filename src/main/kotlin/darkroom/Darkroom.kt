@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
+private val debugImage = ImageIO.read(File("prints/04_long_10.png"))
 
 object Darkroom {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -156,6 +156,7 @@ object Darkroom {
 
     private fun rotate(image: BufferedImage): BufferedImage {
         val degreeAngle = SettingsPanelProperties.rotation.value
+        SettingsPanelProperties.cropAreaAngle.set(degreeAngle)
 
         if (degreeAngle == 0.0) {
             return image
