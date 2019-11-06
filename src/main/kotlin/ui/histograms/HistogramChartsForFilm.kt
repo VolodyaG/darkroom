@@ -13,6 +13,13 @@ object HistogramChartsForFilm {
     val colorHistogramView = SimpleObjectProperty<Image>()
     val greyHistogramView = SimpleObjectProperty<Image>()
 
+    fun buildHistograms(image: BufferedImage, colorImage: BufferedImage? = null) {
+        if (colorImage == null) {
+            return buildHistogramsForColorfulFilm(image)
+        }
+        return buildHistogramsForBlackAndWhiteFilm(image, colorImage)
+    }
+
     fun buildHistogramsForBlackAndWhiteFilm(grayImage: BufferedImage, colorImage: BufferedImage) {
         runAsync(true) {
             val regionToAnalise = crop10PercentOfTheImage(grayImage)

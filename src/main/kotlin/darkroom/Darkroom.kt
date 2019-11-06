@@ -55,9 +55,7 @@ object Darkroom {
             val filePath = "${PrintSettings.folderToSave.path}/${getPrintName()}"
 
             val adjustedImage = doImageProcessing(scan)
-            var dataBefore = Date()
             val croppedImage = cropImage(adjustedImage, scan)
-            println("Crop time: ${Date().time - dataBefore.time}ms")
 
             ImageIO.write(croppedImage, "PNG", File(filePath))
         } finally {
@@ -66,61 +64,31 @@ object Darkroom {
     }
 
     private fun doImageProcessing(image: BufferedImage): BufferedImage {
+        var colorfulImage: BufferedImage? = null
         var adjustedImage = image
 
         when (SettingsPanelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
-                var dataBefore = Date()
-
                 adjustedImage = invertNegativeImage(adjustedImage)
-                var dataInvert = Date()
-                println("Invert time: ${dataInvert.time - dataBefore.time}ms")
-
-                val colorfulImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
-                var dataColors = Date()
-                println("Colors time: ${dataColors.time - dataInvert.time}ms")
-
+                colorfulImage = doColorChannelsEqualization(adjustedImage)
                 adjustedImage = colorfulImage.convertToGrayScale()
-                var dataGray = Date()
-                println("Grayscale time: ${dataGray.time - dataColors.time}ms")
-
-                adjustedImage = doLuminosityEqualization(adjustedImage)
-                var dataLumin = Date()
-                println("Luminosity time: ${dataLumin.time - dataGray.time}ms")
-
-                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
-                var dataBrightn = Date()
-                println("Brightness time: ${dataBrightn.time - dataLumin.time}ms")
-
-                adjustedImage = rotate(adjustedImage)
-                var dataRotate = Date()
-                println("Rotate time: ${dataRotate.time - dataBrightn.time}ms")
-
-                HistogramChartsForFilm.buildHistogramsForBlackAndWhiteFilm(adjustedImage, colorfulImage)
-                println("All processing time: ${Date().time - dataBefore.time}ms")
             }
             FilmTypes.COLOR_NEGATIVE -> {
                 adjustedImage = invertNegativeImage(adjustedImage)
-                adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
-                adjustedImage = doLuminosityEqualization(adjustedImage)
-                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
-                adjustedImage = rotate(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(adjustedImage)
             }
             FilmTypes.POSITIVE -> {
-                adjustedImage = doColorChannelsEqualization(MarvinImage(adjustedImage)).bufferedImage
-                adjustedImage = doLuminosityEqualization(adjustedImage)
-                adjustedImage = adjustBrightnessAndContrast(adjustedImage)
-                adjustedImage = rotate(adjustedImage)
-                HistogramChartsForFilm.buildHistogramsForColorfulFilm(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(adjustedImage)
             }
         }
 
-        if (HistogramEqualizationProperties.highLightMaskEnabled() || HistogramEqualizationProperties.shadowsMaskEnabled()) {
-            adjustedImage = createClippingMask(adjustedImage)
-        }
+        adjustedImage = doLuminosityEqualization(adjustedImage)
+        adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+        adjustedImage = rotate(adjustedImage)
 
-        return adjustedImage
+        HistogramChartsForFilm.buildHistograms(adjustedImage, colorfulImage)
+
+        return createClippingMask(adjustedImage)
     }
 
     private fun invertNegativeImage(image: BufferedImage): BufferedImage {
@@ -199,19 +167,24 @@ object Darkroom {
     }
 
     // TODO try jhlabs library
-    private fun doColorChannelsEqualization(image: MarvinImage): MarvinImage {
+    private fun doColorChannelsEqualization(image: BufferedImage): BufferedImage {
+        val red = HistogramEqualizationProperties.redChannelAdjustment.value.toInt()
+        val green = HistogramEqualizationProperties.greenChannelAdjustment.value.toInt()
+        val blue = HistogramEqualizationProperties.blueChannelAdjustment.value.toInt()
+
+        if (red == 0 && green == 0 && blue == 0) {
+            return image
+        }
+
+        val originalImage = MarvinImage(image)
+        val adjustedImage = MarvinImage(image.width, image.height)
         val adjustmentPlugin = ColorChannel()
 
-        adjustmentPlugin.setAttributes(
-            "red", HistogramEqualizationProperties.redChannelAdjustment.value.toInt(),
-            "green", HistogramEqualizationProperties.greenChannelAdjustment.value.toInt(),
-            "blue", HistogramEqualizationProperties.blueChannelAdjustment.value.toInt()
-        )
-
-        val adjustedImage = MarvinImage(image.width, image.height)
-        adjustmentPlugin.process(image, adjustedImage)
+        adjustmentPlugin.setAttributes("red", red, "green", green, "blue", blue)
+        adjustmentPlugin.process(originalImage, adjustedImage)
         adjustedImage.update()
-        return adjustedImage
+
+        return adjustedImage.bufferedImage
     }
 
     private fun cropImage(image: BufferedImage, originalImage: BufferedImage): BufferedImage {
@@ -235,6 +208,10 @@ object Darkroom {
     }
 
     private fun createClippingMask(image: BufferedImage): BufferedImage {
+        if (!HistogramEqualizationProperties.highLightMaskEnabled() && !HistogramEqualizationProperties.shadowsMaskEnabled()) {
+            return image
+        }
+
         val mask = BufferedImage(image.width, image.height, image.type)
         val maskRaster = mask.raster
         val imageRaster = image.raster
@@ -245,8 +222,8 @@ object Darkroom {
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
                 val pixel = IntArray(4)
-                imageRaster.getPixel(x, y, pixel)
 
+                imageRaster.getPixel(x, y, pixel)
                 maskRaster.setPixel(x, y, getNewPixelValueForClippingMask(pixel, maskForShadows, maskForHighlights))
             }
         }

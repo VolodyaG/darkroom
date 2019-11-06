@@ -19,4 +19,5 @@
 * [ ] Auto levels
 * [ ] Selection area adjustments on rotate
 * [ ] UI theme/style
-* [ ] Colors asjustment OFF button 
+* [ ] Colors adjustment OFF button
+* [ ] Progress bar fix 
