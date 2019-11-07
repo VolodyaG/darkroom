@@ -2,17 +2,13 @@ package ui.histograms
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
-import javafx.beans.value.ObservableValue
 import javafx.geometry.HPos
-import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.image.Image
 import javafx.scene.layout.Priority
 import javafx.util.converter.NumberStringConverter
-import org.controlsfx.control.RangeSlider
 import tornadofx.*
 import ui.Styles
 import ui.colorchannelslider
+import ui.rangeslider
 
 val textInputWidth = 50.0
 
@@ -30,11 +26,11 @@ class HistogramPanelView : View() {
                     colorchannelslider(HistogramEqualizationProperties.greenChannelAdjustment, "Magenta", "Green")
                     colorchannelslider(HistogramEqualizationProperties.blueChannelAdjustment, "Yellow", "Blue")
 
-                    HistogramChartsForFilm.colorHistogramView.addListener { obs: ObservableValue<out Image>?, oldValue: Image?, newValue: Image? ->
-                        if (oldValue == null && newValue != null) {
+                    HistogramChartsForFilm.colorHistogramView.addListener { _, old, new ->
+                        if (old == null && new != null) {
                             isExpanded = true
                         }
-                        if (oldValue != null && newValue == null) {
+                        if (old != null && new == null) {
                             isExpanded = false
                         }
                     }
@@ -46,36 +42,33 @@ class HistogramPanelView : View() {
 
                     imageview(HistogramChartsForFilm.greyHistogramView)
                     hbox {
-                        alignment = Pos.CENTER
-
-                        // TODO make it nicer
-                        val slider = RangeSlider()
-                        slider.lowValueProperty().bindBidirectional(HistogramEqualizationProperties.lowLumLevel)
-                        slider.highValueProperty().bindBidirectional(HistogramEqualizationProperties.highLumLevel)
-                        slider.min = 0.0
-                        slider.max = 1.0
-                        slider.hgrow = Priority.ALWAYS
-                        slider.padding = Insets(0.0, 5.0, 0.0, 2.0)
-
-                        slider.lowValueChangingProperty().addListener { _, old, new ->
-                            if (new && old != new && HistogramEqualizationProperties.highLightMaskEnabled()) {
-                                HistogramEqualizationProperties.enableHighlightsMask.set(false)
-                                HistogramEqualizationProperties.enableShadowsMask.set(true)
-                            }
-                        }
-
-                        slider.highValueChangingProperty().addListener { _, old, new ->
-                            if (new && old != new && HistogramEqualizationProperties.shadowsMaskEnabled()) {
-                                HistogramEqualizationProperties.enableShadowsMask.set(false)
-                                HistogramEqualizationProperties.enableHighlightsMask.set(true)
-                            }
-                        }
+                        addClass(Styles.centeredAlignment)
 
                         textfield {
                             maxWidth = textInputWidth
                             bind(HistogramEqualizationProperties.lowLumLevel, false, NumberStringConverter())
                         }
-                        add(slider)
+                        rangeslider(0.0, 1.0) {
+                            addClass(Styles.rangeSlider)
+
+                            hgrow = Priority.ALWAYS
+
+                            lowValueProperty().bindBidirectional(HistogramEqualizationProperties.lowLumLevel)
+                            highValueProperty().bindBidirectional(HistogramEqualizationProperties.highLumLevel)
+
+                            lowValueChangingProperty().addListener { _, old, new ->
+                                if (new && old != new && HistogramEqualizationProperties.highLightMaskEnabled()) {
+                                    HistogramEqualizationProperties.enableHighlightsMask.set(false)
+                                    HistogramEqualizationProperties.enableShadowsMask.set(true)
+                                }
+                            }
+                            highValueChangingProperty().addListener { _, old, new ->
+                                if (new && old != new && HistogramEqualizationProperties.shadowsMaskEnabled()) {
+                                    HistogramEqualizationProperties.enableShadowsMask.set(false)
+                                    HistogramEqualizationProperties.enableHighlightsMask.set(true)
+                                }
+                            }
+                        }
                         textfield {
                             maxWidth = textInputWidth
                             bind(HistogramEqualizationProperties.highLumLevel, false, NumberStringConverter())
@@ -107,11 +100,11 @@ class HistogramPanelView : View() {
                         }
                     }
 
-                    HistogramChartsForFilm.greyHistogramView.addListener { obs: ObservableValue<out Image>?, oldValue: Image?, newValue: Image? ->
-                        if (oldValue == null && newValue != null) {
+                    HistogramChartsForFilm.greyHistogramView.addListener { _, old, new ->
+                        if (old == null && new != null) {
                             isExpanded = true
                         }
-                        if (oldValue != null && newValue == null) {
+                        if (old != null && new == null) {
                             isExpanded = false
                         }
                     }

@@ -34,9 +34,9 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
 
         MouseClick.set(event.x, event.y)
     }
-    rectangle.onAngleChanged { _: ObservableValue<out Number>?, oldValue: Number, newValue: Number ->
-        val oldAngle = oldValue.toInt()
-        val newAngle = newValue.toInt()
+    rectangle.setOnAngleChanged { _, old, new ->
+        val oldAngle = old.toInt()
+        val newAngle = new.toInt()
         val angleDifference = oldAngle - newAngle
 
         val xOffset = imageView.layoutBounds.maxX - rectangle.endx()

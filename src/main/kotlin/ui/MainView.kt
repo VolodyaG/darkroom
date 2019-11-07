@@ -7,8 +7,9 @@ import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
 import javafx.scene.Group
 import javafx.scene.input.KeyCode
-import javafx.scene.layout.*
-import javafx.scene.paint.Color
+import javafx.scene.layout.ColumnConstraints
+import javafx.scene.layout.Priority
+import javafx.scene.layout.RowConstraints
 import tornadofx.*
 import ui.histograms.HistogramPanelView
 import ui.selection.ResizableRectangle
@@ -25,7 +26,7 @@ class MainView : View("Darkroom") {
         row {
             add(HistogramPanelView())
             vbox {
-                alignment = Pos.CENTER
+                addClass(Styles.centeredAlignment)
 
                 group {
                     mainImageView = imageview(FilmPreview) {
@@ -34,27 +35,15 @@ class MainView : View("Darkroom") {
                         isPreserveRatio = true
                     }
                     selectionRectangle = imageviewselection(mainImageView) {
+                        addClass(Styles.resizableRectangle)
+
                         visibleProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
                         rectangleProperty().bindBidirectional(SettingsPanelProperties.cropArea)
-
-                        style {
-                            stroke = Color.RED
-                            strokeWidth = 1.px
-                            fill = Color(1.0, 1.0, 1.0, 0.0)
-                        }
                     }
                     hbox {
-                        maxWidth = 200.0
-                        maxHeight = 200.0
-
+                        addClass(Styles.magnifierView)
                         add(magnifiedImageView)
-
-                        style {
-                            backgroundColor += c("white")
-                            borderWidth += box(5.px)
-                            borderColor += box(Color.RED)
-                        }
-                        visibleProperty().set(false)
+                        isVisible = false
                     }
                 }
             }

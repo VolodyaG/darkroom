@@ -4,7 +4,6 @@ import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
-import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.OverrunStyle
@@ -30,12 +29,11 @@ class SettingsPanelView : View() {
                     addClass(Styles.boxWithSpacing)
 
                     label("Save to") {
-                        addClass(Styles.propertyLabel)
+                        addClass(Styles.settingNameLabel)
                     }
                     hbox {
-                        alignment = Pos.CENTER_LEFT
-
                         addClass(Styles.boxWithSpacing)
+                        addClass(Styles.centeredAlignment)
 
                         label(SettingsPanelProperties.printsFolder) {
                             textOverrun = OverrunStyle.LEADING_ELLIPSIS
@@ -52,12 +50,11 @@ class SettingsPanelView : View() {
                         }
                     }
                     label("Mode") {
-                        addClass(Styles.propertyLabel)
+                        addClass(Styles.settingNameLabel)
                     }
                     hbox {
-                        alignment = Pos.CENTER
-
                         addClass(Styles.boxWithSpacing)
+                        addClass(Styles.centeredAlignment)
 
                         radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup) {
                             prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
@@ -76,12 +73,12 @@ class SettingsPanelView : View() {
                     addClass(Styles.boxWithSpacing)
 
                     settingsslider("Rotation Angle", SettingsPanelProperties.rotation) {
+                        addClass(Styles.rotateSlider)
+
                         min = -180.0
                         max = 180.0
                         blockIncrement = 90.0
                         majorTickUnit = 90.0
-
-                        padding = Insets(0.0, 5.0, 0.0, 5.0)
 
                         valueProperty().mutateOnChange { number ->
                             val angle = number!!.toDouble()
@@ -97,13 +94,14 @@ class SettingsPanelView : View() {
                         }
                     }
                     label("Crop") {
-                        addClass(Styles.propertyLabel)
+                        addClass(Styles.settingNameLabel)
                     }
                     hbox {
                         addClass(Styles.boxWithSpacing)
 
                         togglebutton("Show crop area") {
                             graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
+
                             selectedProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
                         }
                         button("Reset to default") {
@@ -112,14 +110,12 @@ class SettingsPanelView : View() {
                             }
                         }
                         label {
+                            addClass(Styles.infoIcon)
+
                             graphic = FontAwesomeIconView(FontAwesomeIcon.INFO_CIRCLE)
                             alignment = Pos.CENTER_RIGHT
                             hgrow = Priority.ALWAYS
                             useMaxSize = true
-
-                            style {
-                                fontSize = 16.px
-                            }
 
                             onHover {
                                 // TODO show tooltip
@@ -148,10 +144,10 @@ class SettingsPanelView : View() {
             }
         }
         hbox {
+            addClass(Styles.boxWithSpacing)
+
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
-
-            addClass(Styles.boxWithSpacing)
 
             button("Reset all") {
                 action {

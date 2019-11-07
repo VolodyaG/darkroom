@@ -1,5 +1,6 @@
 package ui
 
+import javafx.geometry.Pos
 import javafx.scene.paint.Color
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
@@ -13,8 +14,20 @@ class Styles : Stylesheet() {
 
     private val themeBlue = Color.rgb(3, 158, 211)
 
+    companion object {
+
+        val mainContainer by cssclass()
+        val boxWithSpacing by cssclass()
+        val centeredAlignment by cssclass()
+        val settingNameLabel by cssclass()
+        val resizableRectangle by cssclass()
+        val magnifierView by cssclass()
+        val rotateSlider by cssclass()
+        val infoIcon by cssclass()
+        val rangeSlider by cssclass()
+    }
+
     init {
-        // built in styles
         val buttonBase = mixin {
             backgroundRadius += box(0.px)
             backgroundInsets += box(0.px)
@@ -47,25 +60,53 @@ class Styles : Stylesheet() {
             }
         }
 
-        // custom styles
+        boxWithSpacing {
+            spacing = 5.px
+        }
+        centeredAlignment {
+            alignment = Pos.CENTER
+        }
+
+        initMainViewStyles()
+        initSettingsPanelStyles()
+        initHistogramPanelStyles()
+    }
+
+    private fun initMainViewStyles() {
         mainContainer {
             backgroundColor += Color.rgb(77, 77, 77)
             hgap = 10.px
             vgap = 10.px
             padding = box(10.px)
         }
-        boxWithSpacing {
-            spacing = 5.px
+        resizableRectangle {
+            stroke = themeBlue
+            strokeWidth = 1.px
+            fill = Color(1.0, 1.0, 1.0, 0.0)
         }
-        propertyLabel {
-            fontStyle = FontPosture.ITALIC
-            textFill = Color.DARKGRAY
+        magnifierView {
+            backgroundColor += Color.WHITE
+            borderWidth += box(3.px)
+            borderColor += box(themeBlue)
         }
     }
 
-    companion object {
-        val mainContainer by cssclass()
-        val boxWithSpacing by cssclass()
-        val propertyLabel by cssclass()
+    private fun initSettingsPanelStyles() {
+        settingNameLabel {
+            fontStyle = FontPosture.ITALIC
+            textFill = Color.DARKGRAY
+        }
+        rotateSlider {
+            padding = box(0.px, 5.px, 0.px, 5.px)
+        }
+        infoIcon {
+            fontSize = 16.px
+        }
+    }
+
+    private fun initHistogramPanelStyles() {
+        rangeSlider {
+            padding = box(0.px, 5.px, 0.px, 2.px)
+        }
     }
 }

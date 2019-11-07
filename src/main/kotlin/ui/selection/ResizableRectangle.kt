@@ -9,6 +9,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import tornadofx.add
+import tornadofx.addClass
 import tornadofx.onChange
 import tornadofx.style
 
@@ -23,6 +24,8 @@ class ResizableRectangle(
     height: Double = 0.0
 ) :
     Rectangle(x, y, width, height) {
+
+    var markerSize = 14.0
 
     private val maxX = group.boundsInLocal.maxX
     private val maxY = group.boundsInLocal.maxY
@@ -109,7 +112,7 @@ class ResizableRectangle(
         return y + height
     }
 
-    fun onAngleChanged(listener: (ObservableValue<out Number>?, oldValue: Number, newValue: Number) -> Unit) {
+    fun setOnAngleChanged(listener: (ObservableValue<out Number>?, oldValue: Number, newValue: Number) -> Unit) {
         angleProperty.addListener(listener)
     }
 
@@ -188,15 +191,14 @@ class ResizableRectangle(
 }
 
 private fun ResizableRectangle.resizemark(cursor: Cursor, op: Rectangle.(resizable: ResizableRectangle) -> Unit = {}) {
-    val size = 14.0
-    val rectangle = Rectangle(size, size)
+    val rectangle = Rectangle(markerSize, markerSize)
 
     rectangle.op(this)
     rectangle.visibleProperty().bind(visibleProperty())
+    rectangle.strokeProperty().bind(strokeProperty())
     rectangle.setOnMouseEntered { rectangle.parent.cursor = cursor }
     rectangle.setOnMouseExited { rectangle.parent.cursor = Cursor.DEFAULT }
     rectangle.style {
-        stroke = Color.DARKRED
         fill = Color(1.0, 1.0, 1.0, 0.0)
     }
 

@@ -3,13 +3,13 @@ package ui
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.HPos
-import javafx.geometry.Pos
 import javafx.scene.control.Slider
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.converter.NumberStringConverter
+import org.controlsfx.control.RangeSlider
 import tornadofx.*
 import ui.histograms.textInputWidth
 
@@ -18,7 +18,7 @@ fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider
         gridpane {
             row {
                 label(name) {
-                    addClass(Styles.propertyLabel)
+                    addClass(Styles.settingNameLabel)
                 }
                 gridpaneConstraints {
                     columnSpan = 2
@@ -70,7 +70,7 @@ fun Pane.colorchannelslider(
             }
         }
         hbox {
-            alignment = Pos.CENTER
+            addClass(Styles.centeredAlignment)
 
             slider(-50.0, 50.0) {
                 useMaxWidth = true
@@ -86,4 +86,14 @@ fun Pane.colorchannelslider(
     }
     add(node)
     node.op()
+}
+
+fun Pane.rangeslider(min: Double, max: Double, op: RangeSlider.() -> Unit = {}) {
+    val slider = RangeSlider()
+
+    slider.min = min
+    slider.max = max
+    slider.op()
+
+    add(slider)
 }
