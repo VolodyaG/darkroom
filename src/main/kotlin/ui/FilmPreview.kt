@@ -6,16 +6,13 @@ import javafx.scene.image.Image
 import toFxImage
 import java.awt.image.BufferedImage
 import java.util.*
-import javax.imageio.ImageIO
 import kotlin.concurrent.scheduleAtFixedRate
 
 object FilmPreview : SimpleObjectProperty<Image>() {
-    private val defaultProgressImage = ImageIO.read(javaClass.getResourceAsStream("/images/progress.gif"))
-
-    private var currentFrame = defaultProgressImage
+    private var currentFrame: BufferedImage? = null
         set(newValue) {
             field = newValue
-            set(newValue.toFxImage())
+            set(newValue?.toFxImage())
         }
 
 
@@ -28,9 +25,9 @@ object FilmPreview : SimpleObjectProperty<Image>() {
         }
     }
 
-    private fun getPreviewFrame(): BufferedImage {
-        if (Darkroom.isPrinting) {
-            return defaultProgressImage
+    private fun getPreviewFrame(): BufferedImage? {
+        if (SettingsPanelProperties.saveInProgress.value) {
+            return null
         }
 
         return Darkroom.makeTestPrint()

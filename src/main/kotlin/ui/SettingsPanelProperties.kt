@@ -7,6 +7,8 @@ import javafx.scene.shape.Rectangle
 import java.io.File
 
 object SettingsPanelProperties {
+    val saveInProgress  = SimpleBooleanProperty(false)
+
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
 

@@ -20,12 +20,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/01_long_10.png"))
+private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
 
 object Darkroom {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    var isPrinting = false
 
     fun makeTestPrint(): BufferedImage {
         val previewFrame: BufferedImage
@@ -42,7 +40,7 @@ object Darkroom {
     }
 
     fun printImage() {
-        isPrinting = true
+        SettingsPanelProperties.saveInProgress.set(true)
         try {
             val scan: BufferedImage
 
@@ -59,7 +57,7 @@ object Darkroom {
 
             ImageIO.write(croppedImage, "PNG", File(filePath))
         } finally {
-            isPrinting = false
+            SettingsPanelProperties.saveInProgress.set(false)
         }
     }
 
@@ -220,6 +218,7 @@ object Darkroom {
             return image
         }
 
+        // TODO fix java.lang.IllegalArgumentException: Unknown image type 0
         val mask = BufferedImage(image.width, image.height, image.type)
         val maskRaster = mask.raster
         val imageRaster = image.raster

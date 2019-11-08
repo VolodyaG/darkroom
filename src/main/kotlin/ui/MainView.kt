@@ -4,6 +4,7 @@ import javafx.geometry.HPos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
 import javafx.scene.Group
+import javafx.scene.control.ProgressIndicator
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Priority
@@ -27,10 +28,14 @@ class MainView : View("Darkroom") {
                 addClass(Styles.centeredAlignment)
 
                 group {
+                    var selectionAreaSavedState = false
+
                     mainImageView = imageview(FilmPreview) {
                         fitWidth = FILM_PREVIEW_WINDOW_WIDTH
                         fitHeight = FILM_PREVIEW_WINDOW_HEIGHT
                         isPreserveRatio = true
+
+                        visibleProperty().bind(SettingsPanelProperties.saveInProgress.not())
                     }
                     selectionRectangle = imageviewselection(mainImageView) {
                         addClass(Styles.resizableRectangle)
@@ -42,6 +47,19 @@ class MainView : View("Darkroom") {
                         addClass(Styles.magnifierView)
                         add(magnifiedImageView)
                         isVisible = false
+                    }
+                    progressindicator {
+                        progress = ProgressIndicator.INDETERMINATE_PROGRESS
+
+                        visibleProperty().bind(SettingsPanelProperties.saveInProgress)
+                        visibleProperty().onChange {
+                            if (it) {
+                                selectionAreaSavedState = selectionRectangle.isVisible
+                                selectionRectangle.isVisible = false
+                            } else {
+                                selectionRectangle.isVisible = selectionAreaSavedState
+                            }
+                        }
                     }
                 }
             }

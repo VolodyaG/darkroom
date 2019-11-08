@@ -20,7 +20,8 @@
 ![Positive-with-magnifier](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%203.png)
 
 #### To do:
-* [ ] Progress bar fix
+* [ ] Fix unknown image type error on clipping
+* [ ] Edge detection for crop area
 * [ ] UI theme/style:
     * Gray histogram style
     * Range slider style
