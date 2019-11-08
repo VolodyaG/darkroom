@@ -1,15 +1,16 @@
 package ui
 
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.HPos
+import javafx.scene.control.Label
 import javafx.scene.control.Slider
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.VBox
+import javafx.scene.control.TitledPane
+import javafx.scene.layout.*
 import javafx.util.converter.NumberStringConverter
 import org.controlsfx.control.RangeSlider
+import org.controlsfx.control.ToggleSwitch
 import tornadofx.*
 import ui.histograms.textInputWidth
 
@@ -96,4 +97,28 @@ fun Pane.rangeslider(min: Double, max: Double, op: RangeSlider.() -> Unit = {}) 
     slider.op()
 
     add(slider)
+}
+
+fun SqueezeBox.foldwithtoggle(
+    title: String,
+    expanded: Boolean = false,
+    toggleProperty: SimpleBooleanProperty? = null,
+    op: TitledPane.() -> Unit = {}
+) {
+    val label = Label(title)
+    val switch = ToggleSwitch()
+    val gridPane = GridPane()
+
+    switch.selectedProperty().bindBidirectional(toggleProperty)
+    gridPane.addRow(0, label, switch)
+
+    val columnConstraints = gridPane.constraintsForColumn(1)
+    columnConstraints.hgrow = Priority.ALWAYS
+    columnConstraints.halignment = HPos.RIGHT
+    columnConstraints.isFillWidth = true
+
+    val fold = fold(expanded = expanded) {
+        graphic = gridPane
+    }
+    op.invoke(fold)
 }

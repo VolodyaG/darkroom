@@ -5,15 +5,19 @@ import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 
 object HistogramEqualizationProperties {
+    val applyColorsAdjustment = SimpleBooleanProperty()
+
     val redChannelAdjustment = SimpleObjectProperty<Number>()
     val greenChannelAdjustment = SimpleObjectProperty<Number>()
     val blueChannelAdjustment = SimpleObjectProperty<Number>()
 
+    val applyLevelsAdjustment = SimpleBooleanProperty()
+
     val lowLumLevel = SimpleDoubleProperty()
     val highLumLevel = SimpleDoubleProperty()
 
-    val enableShadowsMask = SimpleBooleanProperty(false)
-    val enableHighlightsMask = SimpleBooleanProperty(false)
+    val enableShadowsMask = SimpleBooleanProperty()
+    val enableHighlightsMask = SimpleBooleanProperty()
 
     init {
         setInitialValues()
@@ -32,10 +36,14 @@ object HistogramEqualizationProperties {
     }
 
     private fun setInitialValues() {
+        applyColorsAdjustment.value = true
         redChannelAdjustment.value = 0
         greenChannelAdjustment.value = 0
         blueChannelAdjustment.value = 0
+        applyLevelsAdjustment.value = true
         lowLumLevel.value = 0.0
         highLumLevel.value = 1.0
+        enableShadowsMask.value = false
+        enableHighlightsMask.value = false
     }
 }

@@ -1,5 +1,6 @@
 package ui
 
+import darkroom.Darkroom
 import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -13,7 +14,6 @@ import javafx.scene.layout.Priority
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.histograms.HistogramEqualizationProperties
-import kotlin.math.abs
 
 class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
@@ -77,21 +77,11 @@ class SettingsPanelView : View() {
 
                         min = -180.0
                         max = 180.0
-                        blockIncrement = 90.0
+                        minorTickCount = 0
                         majorTickUnit = 90.0
-
-                        valueProperty().mutateOnChange { number ->
-                            val angle = number!!.toDouble()
-                            val positive = if (angle > 0) 1 else -1
-
-                            if (abs(angle) <= 45) {
-                                return@mutateOnChange 0 * positive
-                            }
-                            if (abs(angle) > 45 && abs(angle) <= 135) {
-                                return@mutateOnChange 90 * positive
-                            }
-                            return@mutateOnChange 180 * positive
-                        }
+                        blockIncrement = 90.0
+                        isSnapToTicks = true
+                        isShowTickMarks = true
                     }
                     label("Crop") {
                         addClass(Styles.settingNameLabel)
@@ -149,6 +139,18 @@ class SettingsPanelView : View() {
             vgrow = Priority.ALWAYS
             alignment = Pos.BOTTOM_RIGHT
 
+            button("Scan") {
+                useMaxWidth = true
+                hgrow = Priority.ALWAYS
+
+                action {
+                    runAsync {
+                        isDisable = true
+                        Darkroom.printImage()
+                        isDisable = false
+                    }
+                }
+            }
             button("Reset all") {
                 action {
                     SettingsPanelProperties.resetAll()

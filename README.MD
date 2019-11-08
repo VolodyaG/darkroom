@@ -20,6 +20,9 @@
 ![Positive-with-magnifier](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%203.png)
 
 #### To do:
-* [ ] Colors adjustment OFF button
 * [ ] Progress bar fix
-* [ ] UI theme/style
+* [ ] UI theme/style:
+    * Gray histogram style
+    * Range slider style
+    * All buttons style
+    * Single sliders style

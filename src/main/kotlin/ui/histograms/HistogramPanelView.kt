@@ -3,12 +3,11 @@ package ui.histograms
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.HPos
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.util.converter.NumberStringConverter
 import tornadofx.*
-import ui.Styles
-import ui.colorchannelslider
-import ui.rangeslider
+import ui.*
 
 val textInputWidth = 50.0
 
@@ -17,7 +16,9 @@ class HistogramPanelView : View() {
         squeezebox {
             fillHeight = false
 
-            fold("RGB Adjustment", expanded = false) {
+            foldwithtoggle("RGB Adjustment", toggleProperty = HistogramEqualizationProperties.applyColorsAdjustment) {
+                (graphic as Pane).prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
+
                 vbox {
                     addClass(Styles.boxWithSpacing)
 
@@ -36,7 +37,11 @@ class HistogramPanelView : View() {
                     }
                 }
             }
-            fold("Levels Adjustment", expanded = false) {
+            foldwithtoggle(
+                "Levels Adjustment", toggleProperty = HistogramEqualizationProperties.applyLevelsAdjustment
+            ) {
+                (graphic as Pane).prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
+
                 vbox {
                     addClass(Styles.boxWithSpacing)
 

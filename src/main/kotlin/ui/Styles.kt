@@ -15,7 +15,6 @@ class Styles : Stylesheet() {
     private val themeBlue = Color.rgb(3, 158, 211)
 
     companion object {
-
         val mainContainer by cssclass()
         val boxWithSpacing by cssclass()
         val centeredAlignment by cssclass()
@@ -45,8 +44,6 @@ class Styles : Stylesheet() {
         }
         squeezeBox {
             titledPane {
-                textFill = lightGray
-
                 title {
                     backgroundColor += middleGray
                     fontWeight = FontWeight.BOLD
@@ -55,6 +52,9 @@ class Styles : Stylesheet() {
                         arrow {
                             fill = lightGray
                         }
+                    }
+                    label {
+                        textFill = lightGray
                     }
                 }
             }

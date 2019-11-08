@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/04_long_10.png"))
+private val debugImage = ImageIO.read(File("prints/01_long_10.png"))
 
 object Darkroom {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -131,6 +131,9 @@ object Darkroom {
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
+        if (!HistogramEqualizationProperties.applyLevelsAdjustment.value) {
+            return image
+        }
         if (HistogramEqualizationProperties.lowLumLevel.value == 0.0 && HistogramEqualizationProperties.highLumLevel.value == 1.0) {
             return image
         }
@@ -169,6 +172,10 @@ object Darkroom {
 
     // TODO try jhlabs library
     private fun doColorChannelsEqualization(image: BufferedImage): BufferedImage {
+        if (!HistogramEqualizationProperties.applyColorsAdjustment.value) {
+            return image
+        }
+
         val red = HistogramEqualizationProperties.redChannelAdjustment.value.toInt()
         val green = HistogramEqualizationProperties.greenChannelAdjustment.value.toInt()
         val blue = HistogramEqualizationProperties.blueChannelAdjustment.value.toInt()
