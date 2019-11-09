@@ -1,5 +1,6 @@
 package ui.selection
 
+import com.google.common.collect.ImmutableList
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ObservableValue
@@ -25,6 +26,7 @@ class ResizableRectangle(
 ) :
     Rectangle(x, y, width, height) {
 
+    val markers: ImmutableList<Rectangle>
     var markerSize = 14.0
 
     private val maxX = group.boundsInLocal.maxX
@@ -44,62 +46,64 @@ class ResizableRectangle(
     init {
         isVisible = false
 
-        resizemark(Cursor.NW_RESIZE) { resizable ->
-            bindLeftX(this)
-            bindTopY(this)
-            setOnMouseDragged { event ->
-                moveLeftLine(resizable, event)
-                moveTopLine(resizable, event)
+        markers = ImmutableList.of(
+            resizemark(Cursor.NW_RESIZE) { resizable ->
+                bindLeftX(this)
+                bindTopY(this)
+                setOnMouseDragged { event ->
+                    moveLeftLine(resizable, event)
+                    moveTopLine(resizable, event)
+                }
+            },
+            resizemark(Cursor.N_RESIZE) { resizable ->
+                bindMiddleX(this)
+                bindTopY(this)
+                setOnMouseDragged { event -> moveTopLine(resizable, event) }
+            },
+            resizemark(Cursor.NE_RESIZE) { resizable ->
+                bindRightX(this)
+                bindTopY(this)
+                setOnMouseDragged { event ->
+                    moveRightLine(resizable, event)
+                    moveTopLine(resizable, event)
+                }
+            },
+            resizemark(Cursor.E_RESIZE) { resizable ->
+                bindRightX(this)
+                bindMiddleY(this)
+                setOnMouseDragged { event -> moveRightLine(resizable, event) }
+            },
+            resizemark(Cursor.SE_RESIZE) { resizable ->
+                bindRightX(this)
+                bindBottomY(this)
+                setOnMouseDragged { event ->
+                    moveRightLine(resizable, event)
+                    moveBottomLine(resizable, event)
+                }
+            },
+            resizemark(Cursor.S_RESIZE) { resizable ->
+                bindMiddleX(this)
+                bindBottomY(this)
+                setOnMouseDragged { event -> moveBottomLine(resizable, event) }
+            },
+            resizemark(Cursor.SW_RESIZE) { resizable ->
+                bindLeftX(this)
+                bindBottomY(this)
+                setOnMouseDragged { event ->
+                    moveLeftLine(resizable, event)
+                    moveBottomLine(resizable, event)
+                }
+            },
+            resizemark(Cursor.W_RESIZE) { resizable ->
+                bindLeftX(this)
+                bindMiddleY(this)
+                setOnMouseDragged { event -> moveLeftLine(resizable, event) }
+            },
+            resizemark(Cursor.DEFAULT) {
+                bindMiddleX(this)
+                bindMiddleY(this)
             }
-        }
-        resizemark(Cursor.N_RESIZE) { resizable ->
-            bindMiddleX(this)
-            bindTopY(this)
-            setOnMouseDragged { event -> moveTopLine(resizable, event) }
-        }
-        resizemark(Cursor.NE_RESIZE) { resizable ->
-            bindRightX(this)
-            bindTopY(this)
-            setOnMouseDragged { event ->
-                moveRightLine(resizable, event)
-                moveTopLine(resizable, event)
-            }
-        }
-        resizemark(Cursor.E_RESIZE) { resizable ->
-            bindRightX(this)
-            bindMiddleY(this)
-            setOnMouseDragged { event -> moveRightLine(resizable, event) }
-        }
-        resizemark(Cursor.SE_RESIZE) { resizable ->
-            bindRightX(this)
-            bindBottomY(this)
-            setOnMouseDragged { event ->
-                moveRightLine(resizable, event)
-                moveBottomLine(resizable, event)
-            }
-        }
-        resizemark(Cursor.S_RESIZE) { resizable ->
-            bindMiddleX(this)
-            bindBottomY(this)
-            setOnMouseDragged { event -> moveBottomLine(resizable, event) }
-        }
-        resizemark(Cursor.SW_RESIZE) { resizable ->
-            bindLeftX(this)
-            bindBottomY(this)
-            setOnMouseDragged { event ->
-                moveLeftLine(resizable, event)
-                moveBottomLine(resizable, event)
-            }
-        }
-        resizemark(Cursor.W_RESIZE) { resizable ->
-            bindLeftX(this)
-            bindMiddleY(this)
-            setOnMouseDragged { event -> moveLeftLine(resizable, event) }
-        }
-        resizemark(Cursor.DEFAULT) {
-            bindMiddleX(this)
-            bindMiddleY(this)
-        }
+        )
 
         rectangleProperty.onChange { newRectangle -> bindRectangleProperties(newRectangle) }
     }
@@ -190,7 +194,10 @@ class ResizableRectangle(
     }
 }
 
-private fun ResizableRectangle.resizemark(cursor: Cursor, op: Rectangle.(resizable: ResizableRectangle) -> Unit = {}) {
+private fun ResizableRectangle.resizemark(
+    cursor: Cursor,
+    op: Rectangle.(resizable: ResizableRectangle) -> Unit = {}
+): Rectangle {
     val rectangle = Rectangle(markerSize, markerSize)
 
     rectangle.op(this)
@@ -203,4 +210,6 @@ private fun ResizableRectangle.resizemark(cursor: Cursor, op: Rectangle.(resizab
     }
 
     group.add(rectangle)
+
+    return rectangle
 }

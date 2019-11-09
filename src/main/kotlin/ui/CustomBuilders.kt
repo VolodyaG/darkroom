@@ -1,5 +1,7 @@
 package ui
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -14,12 +16,24 @@ import org.controlsfx.control.ToggleSwitch
 import tornadofx.*
 import ui.histograms.textInputWidth
 
-fun Pane.settingsslider(name: String, property: SimpleDoubleProperty, op: Slider.() -> Unit = {}) {
+fun Pane.settingsslider(
+    name: String,
+    property: SimpleDoubleProperty,
+    icon: FontAwesomeIcon? = null,
+    op: Slider.() -> Unit = {}
+) {
     add(
         gridpane {
             row {
                 label(name) {
                     addClass(Styles.settingNameLabel)
+
+                    if (icon != null) {
+                        val iconView = FontAwesomeIconView(icon)
+                        iconView.fillProperty().bind(textFillProperty())
+
+                        graphic = iconView
+                    }
                 }
                 gridpaneConstraints {
                     columnSpan = 2

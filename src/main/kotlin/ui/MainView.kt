@@ -1,5 +1,6 @@
 package ui
 
+import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
@@ -28,8 +29,6 @@ class MainView : View("Darkroom") {
                 addClass(Styles.centeredAlignment)
 
                 group {
-                    var selectionAreaSavedState = false
-
                     mainImageView = imageview(FilmPreview) {
                         fitWidth = FILM_PREVIEW_WINDOW_WIDTH
                         fitHeight = FILM_PREVIEW_WINDOW_HEIGHT
@@ -53,11 +52,16 @@ class MainView : View("Darkroom") {
 
                         visibleProperty().bind(SettingsPanelProperties.saveInProgress)
                         visibleProperty().onChange {
-                            if (it) {
-                                selectionAreaSavedState = selectionRectangle.isVisible
-                                selectionRectangle.isVisible = false
-                            } else {
-                                selectionRectangle.isVisible = selectionAreaSavedState
+                            val selected = it;
+
+                            Platform.runLater {
+                                if (selected) {
+                                    parent.getChildList()?.removeAll(selectionRectangle.markers)
+                                    parent.getChildList()?.remove(selectionRectangle)
+                                } else {
+                                    parent.getChildList()?.addAll(selectionRectangle.markers)
+                                    parent.getChildList()?.add(selectionRectangle)
+                                }
                             }
                         }
                     }

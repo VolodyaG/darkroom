@@ -72,7 +72,7 @@ class SettingsPanelView : View() {
                 vbox {
                     addClass(Styles.boxWithSpacing)
 
-                    settingsslider("Rotation Angle", SettingsPanelProperties.rotation) {
+                    settingsslider("Rotate", SettingsPanelProperties.rotation, FontAwesomeIcon.ROTATE_RIGHT) {
                         addClass(Styles.rotateSlider)
 
                         min = -180.0
@@ -85,13 +85,16 @@ class SettingsPanelView : View() {
                     }
                     label("Crop") {
                         addClass(Styles.settingNameLabel)
+
+                        val icon = FontAwesomeIconView(FontAwesomeIcon.CROP)
+                        icon.fillProperty().bind(textFillProperty())
+
+                        graphic = icon
                     }
                     hbox {
                         addClass(Styles.boxWithSpacing)
 
                         togglebutton("Show crop area") {
-                            graphic = FontAwesomeIconView(FontAwesomeIcon.CROP)
-
                             selectedProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
                         }
                         button("Reset to default") {
@@ -118,13 +121,13 @@ class SettingsPanelView : View() {
                 vbox {
                     addClass(Styles.boxWithSpacing)
 
-                    settingsslider("Contrast", SettingsPanelProperties.contrast) {
+                    settingsslider("Contrast", SettingsPanelProperties.contrast, FontAwesomeIcon.ADJUST) {
                         min = -1.0
                         max = 1.0
                         blockIncrement = 0.1
                         majorTickUnit = 0.5
                     }
-                    settingsslider("Brightness", SettingsPanelProperties.brightness) {
+                    settingsslider("Brightness", SettingsPanelProperties.brightness, FontAwesomeIcon.SUN_ALT) {
                         min = -1.0
                         max = 1.0
                         blockIncrement = 0.1
