@@ -42,7 +42,7 @@ object HistogramEqualizationProperties {
         blueChannelAdjustment.value = 0
         applyLevelsAdjustment.value = true
         lowLumLevel.value = 0.0
-        highLumLevel.value = 1.0
+        highLumLevel.value = 255.0
         enableShadowsMask.value = false
         enableHighlightsMask.value = false
     }

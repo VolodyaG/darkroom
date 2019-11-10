@@ -80,11 +80,14 @@ object Darkroom {
             }
         }
 
-        adjustedImage = doLuminosityEqualization(adjustedImage)
         adjustedImage = adjustBrightnessAndContrast(adjustedImage)
+
+        HistogramChartsForFilm.buildGrayscaleHistogram(adjustedImage, colorfulImage != null)
+
+        adjustedImage = doLuminosityEqualization(adjustedImage)
         adjustedImage = rotate(adjustedImage)
 
-        HistogramChartsForFilm.buildHistograms(adjustedImage, colorfulImage)
+        HistogramChartsForFilm.updateColorHistogram(if (colorfulImage == null) adjustedImage else colorfulImage)
 
         return createClippingMask(adjustedImage)
     }
@@ -138,8 +141,8 @@ object Darkroom {
 
         val levelsFilter = LevelsFilter()
 
-        levelsFilter.lowLevel = HistogramEqualizationProperties.lowLumLevel.floatValue()
-        levelsFilter.highLevel = HistogramEqualizationProperties.highLumLevel.floatValue()
+        levelsFilter.lowLevel = HistogramEqualizationProperties.lowLumLevel.value.toFloat() / 255
+        levelsFilter.highLevel = HistogramEqualizationProperties.highLumLevel.value.toFloat() / 255
 
         return levelsFilter.filter(image, null)
     }
@@ -219,6 +222,7 @@ object Darkroom {
         }
 
         // TODO fix java.lang.IllegalArgumentException: Unknown image type 0
+        // can be reproduced in POSITIVE mode only
         val mask = BufferedImage(image.width, image.height, image.type)
         val maskRaster = mask.raster
         val imageRaster = image.raster

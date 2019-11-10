@@ -3,7 +3,6 @@ package ui.histograms
 import convertToGrayScale
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
-import marvin.image.MarvinImage
 import toFxImage
 import tornadofx.runAsync
 import java.awt.image.BufferedImage
@@ -13,36 +12,22 @@ object HistogramChartsForFilm {
     val colorHistogramView = SimpleObjectProperty<Image>()
     val greyHistogramView = SimpleObjectProperty<Image>()
 
-    fun buildHistograms(image: BufferedImage, colorImage: BufferedImage? = null) {
-        if (colorImage == null) {
-            return buildHistogramsForColorfulFilm(image)
-        }
-        return buildHistogramsForBlackAndWhiteFilm(image, colorImage)
-    }
+    fun buildGrayscaleHistogram(image: BufferedImage, isGrayScale: Boolean = false) {
+        runAsync {
+            var regionToAnalise = crop10PercentOfTheImage(image)
 
-    fun buildHistogramsForBlackAndWhiteFilm(grayImage: BufferedImage, colorImage: BufferedImage) {
-        runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(grayImage)
+            if (!isGrayScale) {
+                regionToAnalise = regionToAnalise.convertToGrayScale()
+            }
+
             val grayHisto = HistogramDrawer.createGrayscaleHisto(regionToAnalise)
             greyHistogramView.set(grayHisto.toFxImage())
         }
-
-        runAsync(true) {
-            val regionToAnalise = crop10PercentOfTheImage(colorImage)
-            val colorHisto = HistogramDrawer.createColorHisto(regionToAnalise)
-            colorHistogramView.set(colorHisto.toFxImage())
-        }
     }
 
-    fun buildHistogramsForColorfulFilm(image: BufferedImage) {
-        val regionToAnalise = crop10PercentOfTheImage(image)
-
+    fun updateColorHistogram(image: BufferedImage) {
         runAsync(true) {
-            val grayHisto = HistogramDrawer.createGrayscaleHisto(regionToAnalise.convertToGrayScale())
-            greyHistogramView.set(grayHisto.toFxImage())
-        }
-
-        runAsync(true) {
+            val regionToAnalise = crop10PercentOfTheImage(image)
             val colorHisto = HistogramDrawer.createColorHisto(regionToAnalise)
             colorHistogramView.set(colorHisto.toFxImage())
         }

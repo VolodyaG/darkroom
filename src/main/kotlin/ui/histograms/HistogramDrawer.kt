@@ -1,19 +1,24 @@
 package ui.histograms
 
-import marvin.image.MarvinImage
-import marvin.statistic.MarvinHistogram
-import marvin.statistic.MarvinHistogramEntry
 import org.jfree.chart.ChartFactory
+import org.jfree.chart.JFreeChart
+import org.jfree.chart.axis.NumberAxis
+import org.jfree.chart.axis.NumberTickUnit
 import org.jfree.chart.plot.DefaultDrawingSupplier
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.renderer.xy.StandardXYBarPainter
 import org.jfree.chart.renderer.xy.XYBarRenderer
+import org.jfree.chart.ui.RectangleEdge
+import org.jfree.data.Range
 import org.jfree.data.statistics.HistogramDataset
 import ui.FILM_PREVIEW_WINDOW_HEIGHT
 import ui.LEFT_AND_RIGHT_WINDOWS_WIDTH
+import ui.Styles
 import java.awt.Color
+import java.awt.Graphics2D
 import java.awt.Paint
+import java.awt.geom.RectangularShape
 import java.awt.image.BufferedImage
 import java.awt.image.WritableRaster
 
@@ -21,43 +26,30 @@ private const val histogramWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
 private const val histogramHeight = FILM_PREVIEW_WINDOW_HEIGHT / 3
 
 object HistogramDrawer {
+    private const val plotBackground = 235
 
     fun createGrayscaleHisto(image: BufferedImage): BufferedImage {
-        val marvinImage = MarvinImage(image)
+        val raster = image.raster
 
-        val histogram = MarvinHistogram("")
-        histogram.barWidth = 1
+        var pixelsCounter = DoubleArray(raster.width * raster.height)
+        pixelsCounter = raster.getSamples(0, 0, raster.width, raster.height, 0, pixelsCounter)
+        pixelsCounter[0] = 256.0
 
-        val grayPixelsCounter = IntArray(256)
+        val chart = createEmptyChart()
+        val plot = chart.plot as XYPlot
 
-        for (x in 0 until marvinImage.width) {
-            for (y in 0 until marvinImage.height) {
-                grayPixelsCounter[marvinImage.getIntComponent0(x, y)]++
-            }
-        }
+        plot.renderer = GrayScaleRenderer().also { it.barPainter = GrayScaleBarPainter() }
+        (plot.dataset as HistogramDataset).addSeries("Gray", pixelsCounter, 256)
 
-        for (i in 0 until 256) {
-            val entry = createMarvinGrayHistoEntry(i, grayPixelsCounter[i])
-            histogram.addEntry(entry)
-        }
-
-        return histogram.getImage(histogramWidth.toInt(), histogramHeight.toInt())
+        return chart.createBufferedImage(histogramWidth.toInt(), histogramHeight.toInt())
     }
 
     fun createColorHisto(image: BufferedImage): BufferedImage {
-        val raster = image.raster
-        val dataset = createColorHistogramDataset(raster)
-
-        val chart = ChartFactory.createHistogram(
-            "", "", "",
-            dataset, PlotOrientation.VERTICAL, false, true, false
-        )
+        val chart = createEmptyChart()
         val plot = chart.plot as XYPlot
-        val renderer = plot.renderer as XYBarRenderer
-        renderer.barPainter = StandardXYBarPainter()
 
         // translucent blue, green & red (reverse order when legend in true)
-        val paintArray = arrayOf<Paint>(Color(-0x7fffff01, true), Color(-0x7fff0100, true), Color(-0x7f010000, true) )
+        val paintArray = arrayOf<Paint>(Color(-0x7fffff01, true), Color(-0x7fff0100, true), Color(-0x7f010000, true))
         plot.drawingSupplier = DefaultDrawingSupplier(
             paintArray,
             DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
@@ -66,6 +58,8 @@ object HistogramDrawer {
             DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
         )
+        plot.dataset = createColorHistogramDataset(image.raster)
+        (plot.renderer as XYBarRenderer).barPainter = StandardXYBarPainter()
 
         return chart.createBufferedImage(histogramWidth.toInt(), histogramHeight.toInt())
     }
@@ -91,13 +85,56 @@ object HistogramDrawer {
         return dataset
     }
 
-    private fun createMarvinGrayHistoEntry(pixelValue: Int, pixelsCount: Int): MarvinHistogramEntry {
-        val entryColor = if (pixelValue > 230) 230 else if (pixelValue < 30) 30 else pixelValue
-
-        return MarvinHistogramEntry(
-            pixelValue.toDouble(),
-            pixelsCount.toDouble(),
-            Color(entryColor, entryColor, entryColor)
+    private fun createEmptyChart(): JFreeChart {
+        val dataset = HistogramDataset()
+        val chart = ChartFactory.createHistogram(
+            "", "", "", dataset, PlotOrientation.VERTICAL, false, true, false
         )
+        val plot = chart.plot as XYPlot
+
+        plot.backgroundPaint = Color(plotBackground, plotBackground, plotBackground)
+        plot.rangeGridlinePaint = Styles.lightGray.toAwtPaint()
+        plot.domainGridlinePaint = Styles.lightGray.toAwtPaint()
+
+        plot.isOutlineVisible = false
+        plot.isDomainZeroBaselineVisible = false
+
+        plot.rangeAxis.isVisible = false
+        plot.rangeAxis.isTickLabelsVisible = false
+
+        plot.domainAxis.standardTickUnits = NumberAxis.createIntegerTickUnits()
+        plot.domainAxis.range = Range(0.0, 256.0)
+        (plot.domainAxis as NumberAxis).tickUnit = NumberTickUnit(16.0)
+
+        return chart
     }
+
+    private class GrayScaleRenderer : XYBarRenderer() {
+        override fun getItemPaint(row: Int, column: Int): Paint {
+            var entryColor = column
+
+            if (column in (plotBackground - 5)..plotBackground) entryColor = 230
+
+            if (column in (plotBackground + 1)..(plotBackground + 5)) entryColor = 240
+
+            return Color(entryColor, entryColor, entryColor)
+        }
+    }
+
+    private class GrayScaleBarPainter : StandardXYBarPainter() {
+        override fun paintBarShadow(
+            g2: Graphics2D?,
+            renderer: XYBarRenderer?,
+            row: Int,
+            column: Int,
+            bar: RectangularShape?,
+            base: RectangleEdge?,
+            pegShadow: Boolean
+        ) {
+        }
+    }
+}
+
+private fun javafx.scene.paint.Color.toAwtPaint(): Paint {
+    return Color(red.toFloat(), green.toFloat(), blue.toFloat(), opacity.toFloat())
 }

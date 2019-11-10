@@ -3,9 +3,12 @@ package ui.histograms
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.HPos
+import javafx.geometry.Insets
+import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.util.converter.NumberStringConverter
+import org.controlsfx.control.RangeSlider
 import tornadofx.*
 import ui.*
 
@@ -42,19 +45,28 @@ class HistogramPanelView : View() {
             ) {
                 (graphic as Pane).prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH
 
-                vbox {
-                    addClass(Styles.boxWithSpacing)
+                gridpane {
+                    vgap = 5.0
+                    hgap = 5.0
 
-                    imageview(HistogramChartsForFilm.greyHistogramView)
-                    hbox {
-                        addClass(Styles.centeredAlignment)
+                    row {
+                        imageview(HistogramChartsForFilm.greyHistogramView) {
+                            fitWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH + 10
+                            isPreserveRatio = true
 
-                        textfield {
-                            maxWidth = textInputWidth
-                            bind(HistogramEqualizationProperties.lowLumLevel, false, NumberStringConverter())
+                            gridpaneConstraints {
+                                columnSpan = 4
+                            }
+
+                            GridPane.setHalignment(this, HPos.CENTER)
                         }
-                        rangeslider(0.0, 1.0) {
-                            addClass(Styles.rangeSlider)
+                    }
+                    row {
+                        rangeslider(0.0, 255.0) {
+                            minorTickCount = 0
+                            majorTickUnit = 1.0
+                            blockIncrement = 1.0
+                            isSnapToTicks = true
 
                             hgrow = Priority.ALWAYS
 
@@ -73,48 +85,78 @@ class HistogramPanelView : View() {
                                     HistogramEqualizationProperties.enableHighlightsMask.set(true)
                                 }
                             }
+
+                            HistogramEqualizationProperties.lowLumLevel.onChange { setTrackColor() }
+                            HistogramEqualizationProperties.highLumLevel.onChange { setTrackColor() }
+
+                            gridpaneConstraints {
+                                columnSpan = 4
+                            }
+                        }
+                    }
+                    row {
+                        textfield {
+                            addClass(Styles.luminosityText)
+
+                            bind(HistogramEqualizationProperties.lowLumLevel, false, NumberStringConverter())
+
+                            GridPane.setMargin(this, Insets(0.0, 0.0, 0.0, 4.0))
+                        }
+                        togglebutton("S") {
+                            graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
+
+                            selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableShadowsMask)
+                            action {
+                                HistogramEqualizationProperties.enableHighlightsMask.set(false)
+                            }
+                        }
+                        togglebutton("H") {
+                            graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
+
+                            selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableHighlightsMask)
+                            action {
+                                HistogramEqualizationProperties.enableShadowsMask.set(false)
+                            }
+
+                            gridpaneColumnConstraints {
+                                hgrow = Priority.ALWAYS
+                                halignment = HPos.RIGHT
+                            }
                         }
                         textfield {
-                            maxWidth = textInputWidth
+                            addClass(Styles.luminosityText)
+
                             bind(HistogramEqualizationProperties.highLumLevel, false, NumberStringConverter())
+
+                            GridPane.setMargin(this, Insets(0.0, 4.0, 0.0, 0.0))
                         }
                     }
-                    gridpane {
-                        row {
-                            togglebutton("S") {
-                                graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
+                }
 
-                                selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableShadowsMask)
-                                action {
-                                    HistogramEqualizationProperties.enableHighlightsMask.set(false)
-                                }
-                            }
-                            togglebutton("H") {
-                                graphic = FontAwesomeIconView(FontAwesomeIcon.EXCLAMATION_TRIANGLE)
-
-                                selectedProperty().bindBidirectional(HistogramEqualizationProperties.enableHighlightsMask)
-                                action {
-                                    HistogramEqualizationProperties.enableShadowsMask.set(false)
-                                }
-
-                                gridpaneColumnConstraints {
-                                    hgrow = Priority.ALWAYS
-                                    halignment = HPos.RIGHT
-                                }
-                            }
-                        }
+                HistogramChartsForFilm.greyHistogramView.addListener { _, old, new ->
+                    if (old == null && new != null) {
+                        isExpanded = true
                     }
-
-                    HistogramChartsForFilm.greyHistogramView.addListener { _, old, new ->
-                        if (old == null && new != null) {
-                            isExpanded = true
-                        }
-                        if (old != null && new == null) {
-                            isExpanded = false
-                        }
+                    if (old != null && new == null) {
+                        isExpanded = false
                     }
                 }
             }
         }
     }
+}
+
+private fun RangeSlider.setTrackColor() {
+    val low = HistogramEqualizationProperties.lowLumLevel.value / 255 * 100
+    val high = HistogramEqualizationProperties.highLumLevel.value / 255 * 100
+
+    val track = lookup(".track")
+    val style = StringBuilder("-fx-background-color: linear-gradient(to right, ")
+
+    style.append("black ").append("0%, ")
+    style.append("black ").append(low).append("%, ")
+    style.append("white ").append(high).append("%, ")
+    style.append("white ").append("100%);")
+
+    track.styleProperty().set(style.toString())
 }

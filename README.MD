@@ -22,8 +22,9 @@
 #### To do:
 * [ ] Fix unknown image type error on clipping
 * [ ] Edge detection for crop area
+    * Edge detection algorithm
+    * Neural network
+* [ ] Horizon adjustment
 * [ ] UI theme/style:
-    * Gray histogram style
-    * Range slider style
     * All buttons style
     * Single sliders style
