@@ -14,7 +14,7 @@ class Styles : Stylesheet() {
     private val middleGray = Color.rgb(71, 71, 71)
     private val darkGray = Color.rgb(51, 51, 51)
 
-    private val themeBlue = Color.rgb(3, 158, 211)
+    private val themeBlue = Color.rgb(45, 168, 209)
     private val mainBackground = Color.rgb(77, 77, 77)
 
     companion object {
@@ -28,6 +28,7 @@ class Styles : Stylesheet() {
         val magnifierView by cssclass()
         val rotateSlider by cssclass()
         val infoIcon by cssclass()
+        val scanButton by cssclass()
         val rangeSlider by cssclass("range-slider")
         val luminosityText by cssclass()
         val lowThumb by cssclass("low-thumb")
@@ -41,25 +42,43 @@ class Styles : Stylesheet() {
             backgroundInsets += box(0.px)
             borderColor += box(Color.TRANSPARENT)
             borderWidth += box(1.px)
+
+            backgroundColor += lightGray.derive(0.5)
+            textFill = middleGray
+
+            and(hover) {
+                backgroundColor += lightGray.derive(0.1)
+            }
+
+            and(pressed) {
+                backgroundColor += lightGray.derive(-0.1)
+            }
         }
         button {
             +buttonBase
         }
         toggleButton {
             +buttonBase
+
+            and(selected) {
+                backgroundColor += lightGray.derive(-0.1)
+            }
         }
         textInput {
             backgroundRadius += box(0.px)
         }
         squeezeBox {
             titledPane {
+                textFill = lightGray
+
                 title {
                     backgroundColor += middleGray
                     fontWeight = FontWeight.BOLD
 
                     arrowButton {
                         arrow {
-                            fill = lightGray
+                            backgroundColor += lightGray
+                            backgroundInsets += box(0.px)
                         }
                     }
                     label {
@@ -110,6 +129,18 @@ class Styles : Stylesheet() {
         }
         infoIcon {
             fontSize = 16.px
+        }
+        scanButton {
+            backgroundColor += themeBlue
+            textFill = Color.WHITE
+
+            and(hover) {
+                backgroundColor += themeBlue.derive(-0.2)
+            }
+
+            and(pressed) {
+                backgroundColor += themeBlue.derive(-0.4)
+            }
         }
     }
 

@@ -143,6 +143,8 @@ class SettingsPanelView : View() {
             alignment = Pos.BOTTOM_RIGHT
 
             button("Scan") {
+                addClass(Styles.scanButton)
+
                 useMaxWidth = true
                 hgrow = Priority.ALWAYS
 
