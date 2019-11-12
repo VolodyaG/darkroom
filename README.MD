@@ -8,7 +8,7 @@
 
 #### Features:
 * Negative/positive and color/black-and-white film support
-* Colors and shadows/highlights adjustments adjustment
+* Colors and shadows/highlights adjustments
 * Contrast/brightness control
 * Rotation and crop
 * Magnifying glass
@@ -19,7 +19,12 @@
 
 ![Positive-with-magnifier](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%203.png)
 
+#### Flags and environment variables:
+* **WITHOUT_SCANNER** - when set to true runs application with default test image
+* **PERFORMANCE_DEBUG** - when set to true performance logs are shown
+
 #### To do:
+* [ ] Image processing performance logs
 * [ ] Edge detection for crop area
     * Edge detection algorithm
     * Neural network

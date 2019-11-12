@@ -20,6 +20,10 @@ fun main(args: Array<String>) {
     Application.launch(MyApp::class.java, *args)
 }
 
+fun String.isEnvTrue(): Boolean {
+    return System.getenv(this) == true.toString()
+}
+
 /*
 * ToDo features list
 * Preview/Processing

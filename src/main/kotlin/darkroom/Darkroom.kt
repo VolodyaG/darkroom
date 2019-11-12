@@ -1,5 +1,6 @@
 package darkroom
 
+import isEnvTrue
 import ui.FILM_PREVIEW_WINDOW_WIDTH
 import ui.SettingsPanelProperties
 import ui.histograms.HistogramChartsForFilm
@@ -18,7 +19,7 @@ object Darkroom {
     fun makeTestPrint(): BufferedImage {
         val previewFrame: BufferedImage
 
-        if (System.getenv("WITHOUT_SCANNER") == true.toString()) {
+        if ("WITHOUT_SCANNER".isEnvTrue()) {
             val newImage = BufferedImage(debugImage.width, debugImage.height, 5)
             newImage.graphics.drawImage(debugImage, 0, 0, null)
             previewFrame = newImage
@@ -34,7 +35,7 @@ object Darkroom {
         try {
             val scan: BufferedImage
 
-            if (System.getenv("WITHOUT_SCANNER") == true.toString()) {
+            if ("WITHOUT_SCANNER".isEnvTrue()) {
                 scan = debugImage
             } else {
                 scan = FilmScanner.scanInFullResolution()
