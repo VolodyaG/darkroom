@@ -1,9 +1,9 @@
 package ui.histograms
 
-import convertToGrayScale
+import darkroom.convertToGrayScale
+import darkroom.toFxImage
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
-import toFxImage
 import tornadofx.runAsync
 import java.awt.image.BufferedImage
 import kotlin.math.roundToInt

@@ -20,7 +20,6 @@
 ![Positive-with-magnifier](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%203.png)
 
 #### To do:
-* [ ] Fix unknown image type error on clipping
 * [ ] Edge detection for crop area
     * Edge detection algorithm
     * Neural network

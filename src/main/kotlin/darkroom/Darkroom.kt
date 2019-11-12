@@ -1,15 +1,5 @@
 package darkroom
 
-import com.jhlabs.image.ContrastFilter
-import com.jhlabs.image.CropFilter
-import com.jhlabs.image.LevelsFilter
-import com.jhlabs.image.RotateFilter
-import convertToGrayScale
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import marvin.image.MarvinImage
-import org.marvinproject.image.color.colorChannel.ColorChannel
 import ui.FILM_PREVIEW_WINDOW_WIDTH
 import ui.SettingsPanelProperties
 import ui.histograms.HistogramChartsForFilm
@@ -20,7 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
+private val debugImage = ImageIO.read(File("prints/03_long_10.png"))
 
 object Darkroom {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -67,13 +57,11 @@ object Darkroom {
 
         when (SettingsPanelProperties.filmType.value!!) {
             FilmTypes.BLACK_AND_WHITE -> {
-                adjustedImage = invertNegativeImage(adjustedImage)
-                colorfulImage = doColorChannelsEqualization(adjustedImage)
+                colorfulImage = doColorChannelsEqualization(adjustedImage.invert())
                 adjustedImage = colorfulImage.convertToGrayScale()
             }
             FilmTypes.COLOR_NEGATIVE -> {
-                adjustedImage = invertNegativeImage(adjustedImage)
-                adjustedImage = doColorChannelsEqualization(adjustedImage)
+                adjustedImage = doColorChannelsEqualization(adjustedImage.invert())
             }
             FilmTypes.POSITIVE -> {
                 adjustedImage = doColorChannelsEqualization(adjustedImage)
@@ -85,66 +73,26 @@ object Darkroom {
         HistogramChartsForFilm.buildGrayscaleHistogram(adjustedImage, colorfulImage != null)
 
         adjustedImage = doLuminosityEqualization(adjustedImage)
-        adjustedImage = rotate(adjustedImage)
 
         HistogramChartsForFilm.updateColorHistogram(if (colorfulImage == null) adjustedImage else colorfulImage)
 
-        return createClippingMask(adjustedImage)
-    }
+        adjustedImage = applyClippingMask(adjustedImage)
 
-    private fun invertNegativeImage(image: BufferedImage): BufferedImage {
-        val newImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB)
-
-        val imageRaster = image.raster
-        val newImageRaster = newImage.raster
-
-        val halfOfTheImageWidth = image.width / 2
-        val pixelsInHalfImage = (halfOfTheImageWidth * image.height) * 3
-
-        val firstHalfWorker = GlobalScope.async {
-            val pixels = imageRaster.getPixels(0, 0, halfOfTheImageWidth, image.height, IntArray(pixelsInHalfImage))
-            pixels.forEachIndexed { index, i ->
-                pixels[index] = 255 - i
-            }
-            newImageRaster.setPixels(0, 0, halfOfTheImageWidth, image.height, pixels)
-        }
-
-        val secondHalfWorker = GlobalScope.async {
-            val pixels = imageRaster.getPixels(
-                halfOfTheImageWidth,
-                0,
-                image.width - halfOfTheImageWidth,
-                image.height,
-                IntArray(pixelsInHalfImage)
-            )
-            pixels.forEachIndexed { index, i ->
-                pixels[index] = 255 - i
-            }
-            newImageRaster.setPixels(halfOfTheImageWidth, 0, image.width - halfOfTheImageWidth, image.height, pixels)
-        }
-
-        runBlocking {
-            secondHalfWorker.await()
-            firstHalfWorker.await()
-        }
-
-        return newImage
+        return rotate(adjustedImage)
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
         if (!HistogramEqualizationProperties.applyLevelsAdjustment.value) {
             return image
         }
-        if (HistogramEqualizationProperties.lowLumLevel.value == 0.0 && HistogramEqualizationProperties.highLumLevel.value == 1.0) {
+        if (HistogramEqualizationProperties.lowLumLevel.value == 0.0 && HistogramEqualizationProperties.highLumLevel.value == 255.0) {
             return image
         }
 
-        val levelsFilter = LevelsFilter()
-
-        levelsFilter.lowLevel = HistogramEqualizationProperties.lowLumLevel.value.toFloat() / 255
-        levelsFilter.highLevel = HistogramEqualizationProperties.highLumLevel.value.toFloat() / 255
-
-        return levelsFilter.filter(image, null)
+        return image.adjustLevels(
+            HistogramEqualizationProperties.lowLumLevel.floatValue(),
+            HistogramEqualizationProperties.highLumLevel.floatValue()
+        )
     }
 
     private fun adjustBrightnessAndContrast(image: BufferedImage): BufferedImage {
@@ -152,10 +100,10 @@ object Darkroom {
             return image
         }
 
-        val contrastFilter = ContrastFilter()
-        contrastFilter.contrast = SettingsPanelProperties.contrast.floatValue() / 2 + 1
-        contrastFilter.brightness = SettingsPanelProperties.brightness.floatValue() / 2 + 1
-        return contrastFilter.filter(image, null)
+        return image.adjustBrightnessAndContrast(
+            SettingsPanelProperties.brightness.floatValue() / 2 + 1,
+            SettingsPanelProperties.contrast.floatValue() / 2 + 1
+        )
     }
 
     private fun rotate(image: BufferedImage): BufferedImage {
@@ -166,12 +114,9 @@ object Darkroom {
             return image
         }
 
-        val radAngle = Math.toRadians(-degreeAngle).toFloat()
-        val rotateFilter = RotateFilter(radAngle)
-        return rotateFilter.filter(image, null)
+        return image.rotate(degreeAngle)
     }
 
-    // TODO try jhlabs library
     private fun doColorChannelsEqualization(image: BufferedImage): BufferedImage {
         if (!HistogramEqualizationProperties.applyColorsAdjustment.value) {
             return image
@@ -185,15 +130,7 @@ object Darkroom {
             return image
         }
 
-        val originalImage = MarvinImage(image)
-        val adjustedImage = MarvinImage(image.width, image.height)
-        val adjustmentPlugin = ColorChannel()
-
-        adjustmentPlugin.setAttributes("red", red, "green", green, "blue", blue)
-        adjustmentPlugin.process(originalImage, adjustedImage)
-        adjustedImage.update()
-
-        return adjustedImage.bufferedImage
+        return image.adjustColors(red, green, blue)
     }
 
     private fun cropImage(image: BufferedImage, originalImage: BufferedImage): BufferedImage {
@@ -208,58 +145,21 @@ object Darkroom {
         val width = (area.width * scaleFactor).toInt()
         val height = (area.height * scaleFactor).toInt()
 
-        val cropFilter = CropFilter(x, y, width, height)
-        return cropFilter.filter(image, null)
+        return image.crop(x, y, width, height)
     }
 
-    private fun getPrintName(): String {
-        return "${formatter.format(Date())}.png"
-    }
-
-    private fun createClippingMask(image: BufferedImage): BufferedImage {
+    private fun applyClippingMask(image: BufferedImage): BufferedImage {
         if (!HistogramEqualizationProperties.highLightMaskEnabled() && !HistogramEqualizationProperties.shadowsMaskEnabled()) {
             return image
         }
 
-        // TODO fix java.lang.IllegalArgumentException: Unknown image type 0
-        // can be reproduced in POSITIVE mode only
-        val mask = BufferedImage(image.width, image.height, image.type)
-        val maskRaster = mask.raster
-        val imageRaster = image.raster
-
         val maskForShadows = HistogramEqualizationProperties.shadowsMaskEnabled()
         val maskForHighlights = HistogramEqualizationProperties.highLightMaskEnabled()
 
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                val pixel = IntArray(4)
-
-                imageRaster.getPixel(x, y, pixel)
-                maskRaster.setPixel(x, y, getNewPixelValueForClippingMask(pixel, maskForShadows, maskForHighlights))
-            }
-        }
-        return mask
+        return image.createClippingMask(maskForShadows, maskForHighlights)
     }
 
-    private fun getNewPixelValueForClippingMask(
-        pixel: IntArray,
-        maskForShadows: Boolean,
-        maskForHighlights: Boolean
-    ): IntArray {
-        return if (maskForHighlights) {
-            if ((pixel[0] == 255 || pixel[1] == 255 || pixel[2] == 255)) {
-                pixel
-            } else {
-                arrayOf(0, 0, 0, 255).toIntArray()
-            }
-        } else if (maskForShadows) {
-            if (pixel[0] == 0 || pixel[1] == 0 || pixel[2] == 0) {
-                pixel
-            } else {
-                arrayOf(255, 255, 255, 255).toIntArray()
-            }
-        } else {
-            throw IllegalStateException()
-        }
+    private fun getPrintName(): String {
+        return "${formatter.format(Date())}.png"
     }
 }

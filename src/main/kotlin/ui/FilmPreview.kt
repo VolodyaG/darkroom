@@ -1,9 +1,9 @@
 package ui
 
 import darkroom.Darkroom
+import darkroom.toFxImage
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
-import toFxImage
 import java.awt.image.BufferedImage
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate

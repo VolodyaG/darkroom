@@ -1,6 +1,7 @@
 package ui.selection
 
-import com.jhlabs.image.RotateFilter
+import darkroom.rotate
+import darkroom.toFxImage
 import javafx.scene.Group
 import javafx.scene.image.ImageView
 import javafx.scene.shape.Rectangle
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import toFxImage
 import java.awt.image.BufferedImage
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -53,7 +53,6 @@ class ImageViewSelectionTest {
     ).stream()
 
     private fun createRectangle(initialAngle: Double): ResizableRectangle {
-        val radAngle = Math.toRadians(-initialAngle).toFloat()
         val bufferedImage = BufferedImage(220, 130, BufferedImage.TYPE_INT_RGB)
         val image = bufferedImage.toFxImage()
         val mainImageView = ImageView(image)
@@ -62,7 +61,7 @@ class ImageViewSelectionTest {
 
         resizableRectangle.rectangleProperty().set(Rectangle(5.0, 10.0, 200.0, 100.0))
         resizableRectangle.angleProperty().set(initialAngle)
-        mainImageView.imageProperty().set(RotateFilter(radAngle).filter(bufferedImage, null).toFxImage())
+        mainImageView.imageProperty().set(bufferedImage.rotate(initialAngle).toFxImage())
 
         return resizableRectangle
     }
