@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.imageio.ImageIO
 
-private val debugImage = ImageIO.read(File("prints/03_long_10.png"))
+private val debugImage = ImageIO.read(File("prints/02_long_10.png"))
 
 object Darkroom {
     private val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
