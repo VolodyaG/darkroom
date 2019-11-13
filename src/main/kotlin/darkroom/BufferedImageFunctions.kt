@@ -14,7 +14,7 @@ fun BufferedImage.toFxImage(): Image {
     return SwingFXUtils.toFXImage(this, null)
 }
 
-fun BufferedImage.invert(): BufferedImage {
+fun BufferedImage.invert(): BufferedImage = performancelog {
     val newImage = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     val newImageRaster = newImage.raster
 
@@ -48,11 +48,11 @@ fun BufferedImage.invert(): BufferedImage {
         firstHalfWorker.await()
     }
 
-    return newImage
+    return@performancelog newImage
 }
 
 // TODO try jhlabs library
-fun BufferedImage.adjustColors(red: Int, green: Int, blue: Int): BufferedImage {
+fun BufferedImage.adjustColors(red: Int, green: Int, blue: Int): BufferedImage = performancelog {
     val originalImage = MarvinImage(this)
     val adjustedImage = MarvinImage(width, height)
     val adjustmentPlugin = ColorChannel()
@@ -61,42 +61,44 @@ fun BufferedImage.adjustColors(red: Int, green: Int, blue: Int): BufferedImage {
     adjustmentPlugin.process(originalImage, adjustedImage)
     adjustedImage.update()
 
-    return adjustedImage.bufferedImage
+    return@performancelog adjustedImage.bufferedImage
 }
 
-fun BufferedImage.convertToGrayScale(): BufferedImage {
+fun BufferedImage.convertToGrayScale(): BufferedImage = performancelog {
     val grayscaleFilter = GrayscaleFilter()
-    return grayscaleFilter.filter(this, BufferedImage(width, height, this.type))
+    return@performancelog grayscaleFilter.filter(this, BufferedImage(width, height, this.type))
 }
 
-fun BufferedImage.adjustBrightnessAndContrast(brightness: Float, contrast: Float): BufferedImage {
+fun BufferedImage.adjustBrightnessAndContrast(brightness: Float, contrast: Float): BufferedImage = performancelog {
     val contrastFilter = ContrastFilter()
     contrastFilter.contrast = contrast
     contrastFilter.brightness = brightness
-    return contrastFilter.filter(this, BufferedImage(width, height, type))
+    return@performancelog contrastFilter.filter(this, BufferedImage(width, height, type))
 }
 
-fun BufferedImage.adjustLevels(lowLevel: Float = 0F, highLevel: Float = 255F): BufferedImage {
+fun BufferedImage.adjustLevels(lowLevel: Float = 0F, highLevel: Float = 255F): BufferedImage = performancelog {
     val levelsFilter = LevelsFilter()
 
     levelsFilter.lowLevel = lowLevel / 255
     levelsFilter.highLevel = highLevel / 255
 
-    return levelsFilter.filter(this, BufferedImage(width, height, type))
+    return@performancelog levelsFilter.filter(this, BufferedImage(width, height, type))
 }
 
-fun BufferedImage.rotate(degreeAngle: Double): BufferedImage {
+fun BufferedImage.rotate(degreeAngle: Double): BufferedImage = performancelog {
     val radAngle = Math.toRadians(-degreeAngle).toFloat()
     val rotateFilter = RotateFilter(radAngle)
-    return rotateFilter.filter(this, null)
+    return@performancelog rotateFilter.filter(this, null)
 }
 
-fun BufferedImage.crop(x: Int, y: Int, width: Int, height: Int): BufferedImage {
+fun BufferedImage.crop(x: Int, y: Int, width: Int, height: Int): BufferedImage = performancelog {
     val cropFilter = CropFilter(x, y, width, height)
-    return cropFilter.filter(this, null)
+    return@performancelog cropFilter.filter(this, null)
 }
 
-fun BufferedImage.createClippingMask(shadowsMask: Boolean = false, highlightsMask: Boolean = false): BufferedImage {
+fun BufferedImage.createClippingMask(
+    shadowsMask: Boolean = false, highlightsMask: Boolean = false
+): BufferedImage = performancelog {
     val mask = BufferedImage(width, height, type)
     val maskRaster = mask.raster
 
@@ -108,7 +110,7 @@ fun BufferedImage.createClippingMask(shadowsMask: Boolean = false, highlightsMas
             maskRaster.setPixel(x, y, getNewPixelValueForClippingMask(pixel, shadowsMask, highlightsMask))
         }
     }
-    return mask
+    return@performancelog mask
 }
 
 private fun getNewPixelValueForClippingMask(

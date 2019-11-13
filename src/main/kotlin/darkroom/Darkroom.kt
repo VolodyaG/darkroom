@@ -52,7 +52,7 @@ object Darkroom {
         }
     }
 
-    private fun doImageProcessing(image: BufferedImage): BufferedImage {
+    private fun doImageProcessing(image: BufferedImage): BufferedImage = performancelog {
         var colorfulImage: BufferedImage? = null
         var adjustedImage = image
 
@@ -79,7 +79,7 @@ object Darkroom {
 
         adjustedImage = applyClippingMask(adjustedImage)
 
-        return rotate(adjustedImage)
+        return@performancelog rotate(adjustedImage)
     }
 
     private fun doLuminosityEqualization(image: BufferedImage): BufferedImage {
