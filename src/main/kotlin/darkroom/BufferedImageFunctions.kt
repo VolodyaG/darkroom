@@ -3,134 +3,117 @@ package darkroom
 import com.jhlabs.image.*
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import marvin.image.MarvinImage
-import org.marvinproject.image.color.colorChannel.ColorChannel
 import java.awt.image.BufferedImage
+import kotlin.math.abs
+import kotlin.math.min
 
 fun BufferedImage.toFxImage(): Image {
     return SwingFXUtils.toFXImage(this, null)
 }
 
-fun BufferedImage.invert(): BufferedImage = performancelog {
-    val newImage = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-    val newImageRaster = newImage.raster
+fun BufferedImage.invert(): BufferedImage {
+    val processCallback = fun(pixels: IntArray) {
+        pixels.forEachIndexed { index, pixelValue -> pixels[index] = 255 - pixelValue }
+    }
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
+}
 
-    val halfOfTheImageWidth = width / 2
-    val pixelsInHalfImage = (halfOfTheImageWidth * height) * 3
+// Taken from org.marvinproject.image.color.ColorChannel
+fun BufferedImage.adjustColors(red: Int, green: Int, blue: Int): BufferedImage {
+    val redFactor = getColorAdjFactor(red)
+    val greenFactor = getColorAdjFactor(green)
+    val blueFactor = getColorAdjFactor(blue)
 
-    val firstHalfWorker = GlobalScope.async {
-        val pixels = raster.getPixels(0, 0, halfOfTheImageWidth, height, IntArray(pixelsInHalfImage))
-        pixels.forEachIndexed { index, i ->
-            pixels[index] = 255 - i
+    val processCallback = fun(pixels: IntArray) {
+        for (i in pixels.indices step 3) {
+            pixels[i] = min(pixels[i] * redFactor, 255.0).toInt()
+            pixels[i + 1] = min(pixels[i + 1] * greenFactor, 255.0).toInt()
+            pixels[i + 2] = min(pixels[i + 2] * blueFactor, 255.0).toInt()
         }
-        newImageRaster.setPixels(0, 0, halfOfTheImageWidth, height, pixels)
     }
 
-    val secondHalfWorker = GlobalScope.async {
-        val pixels = raster.getPixels(
-            halfOfTheImageWidth,
-            0,
-            width - halfOfTheImageWidth,
-            height,
-            IntArray(pixelsInHalfImage)
-        )
-        pixels.forEachIndexed { index, i ->
-            pixels[index] = 255 - i
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
+}
+
+private fun getColorAdjFactor(adjustTo: Int): Double {
+    val factor = 1 + abs(adjustTo / 100.0 * 2.5)
+
+    if (adjustTo > 0) {
+        return factor
+    }
+    return 1 / factor
+}
+
+// https://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
+fun BufferedImage.convertToGrayScale(): BufferedImage {
+    val processCallback = fun(pixels: IntArray) {
+        for (i in pixels.indices step 3) {
+            val gray = PixelUtils.clamp((pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114).toInt())
+            pixels[i] = gray
+            pixels[i + 1] = gray
+            pixels[i + 2] = gray
         }
-        newImageRaster.setPixels(halfOfTheImageWidth, 0, width - halfOfTheImageWidth, height, pixels)
     }
 
-    runBlocking {
-        secondHalfWorker.await()
-        firstHalfWorker.await()
-    }
-
-    return@performancelog newImage
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }
 
-// TODO try jhlabs library
-fun BufferedImage.adjustColors(red: Int, green: Int, blue: Int): BufferedImage = performancelog {
-    val originalImage = MarvinImage(this)
-    val adjustedImage = MarvinImage(width, height)
-    val adjustmentPlugin = ColorChannel()
-
-    adjustmentPlugin.setAttributes("red", red, "green", green, "blue", blue)
-    adjustmentPlugin.process(originalImage, adjustedImage)
-    adjustedImage.update()
-
-    return@performancelog adjustedImage.bufferedImage
-}
-
-fun BufferedImage.convertToGrayScale(): BufferedImage = performancelog {
-    val grayscaleFilter = GrayscaleFilter()
-    return@performancelog grayscaleFilter.filter(this, BufferedImage(width, height, this.type))
-}
-
-fun BufferedImage.adjustBrightnessAndContrast(brightness: Float, contrast: Float): BufferedImage = performancelog {
+fun BufferedImage.adjustBrightnessAndContrast(brightness: Float, contrast: Float): BufferedImage {
     val contrastFilter = ContrastFilter()
     contrastFilter.contrast = contrast
     contrastFilter.brightness = brightness
-    return@performancelog contrastFilter.filter(this, BufferedImage(width, height, type))
+    return contrastFilter.filter(this, BufferedImage(width, height, type))
 }
 
-fun BufferedImage.adjustLevels(lowLevel: Float = 0F, highLevel: Float = 255F): BufferedImage = performancelog {
-    val levelsFilter = LevelsFilter()
+// Taken from com.jhlabs.image.LevelsFilter
+fun BufferedImage.adjustLevels(lowLevel: Float = 0F, highLevel: Float = 255F): BufferedImage {
+    val luminosityTable = IntArray(256) {
+        return@IntArray PixelUtils.clamp((255 * (it - lowLevel) / (highLevel - lowLevel)).toInt())
+    }
 
-    levelsFilter.lowLevel = lowLevel / 255
-    levelsFilter.highLevel = highLevel / 255
+    val processCallback = fun(pixels: IntArray) {
+        pixels.forEachIndexed { index, pixelValue -> pixels[index] = luminosityTable[pixelValue] }
+    }
 
-    return@performancelog levelsFilter.filter(this, BufferedImage(width, height, type))
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }
 
-fun BufferedImage.rotate(degreeAngle: Double): BufferedImage = performancelog {
+fun BufferedImage.rotate(degreeAngle: Double): BufferedImage {
     val radAngle = Math.toRadians(-degreeAngle).toFloat()
     val rotateFilter = RotateFilter(radAngle)
-    return@performancelog rotateFilter.filter(this, null)
+    return rotateFilter.filter(this, null)
 }
 
-fun BufferedImage.crop(x: Int, y: Int, width: Int, height: Int): BufferedImage = performancelog {
+fun BufferedImage.crop(x: Int, y: Int, width: Int, height: Int): BufferedImage {
     val cropFilter = CropFilter(x, y, width, height)
-    return@performancelog cropFilter.filter(this, null)
+    return cropFilter.filter(this, null)
 }
 
 fun BufferedImage.createClippingMask(
-    shadowsMask: Boolean = false, highlightsMask: Boolean = false
-): BufferedImage = performancelog {
-    val mask = BufferedImage(width, height, type)
-    val maskRaster = mask.raster
+    shadowsMask: Boolean = false,
+    highlightsMask: Boolean = false
+): BufferedImage {
+    val processCallback = fun(pixels: IntArray) {
+        for (i in pixels.indices step 3) {
+            if (highlightsMask) {
+                if (!(pixels[i] == 255 || pixels[i + 1] == 255 || pixels[i + 2] == 255)) {
+                    pixels[i] = 0
+                    pixels[i + 1] = 0
+                    pixels[i + 2] = 0
+                }
+                continue
+            }
 
-    for (x in 0 until width) {
-        for (y in 0 until height) {
-            val pixel = IntArray(4)
-
-            raster.getPixel(x, y, pixel)
-            maskRaster.setPixel(x, y, getNewPixelValueForClippingMask(pixel, shadowsMask, highlightsMask))
+            if (shadowsMask) {
+                if (!(pixels[i] == 0 || pixels[i + 1] == 0 || pixels[i + 2] == 0)) {
+                    pixels[i] = 255
+                    pixels[i + 1] = 255
+                    pixels[i + 2] = 255
+                }
+                continue
+            }
         }
     }
-    return@performancelog mask
-}
 
-private fun getNewPixelValueForClippingMask(
-    pixel: IntArray,
-    maskForShadows: Boolean,
-    maskForHighlights: Boolean
-): IntArray {
-    return if (maskForHighlights) {
-        if ((pixel[0] == 255 || pixel[1] == 255 || pixel[2] == 255)) {
-            pixel
-        } else {
-            arrayOf(0, 0, 0, 255).toIntArray()
-        }
-    } else if (maskForShadows) {
-        if (pixel[0] == 0 || pixel[1] == 0 || pixel[2] == 0) {
-            pixel
-        } else {
-            arrayOf(255, 255, 255, 255).toIntArray()
-        }
-    } else {
-        throw IllegalStateException()
-    }
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }

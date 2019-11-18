@@ -24,7 +24,7 @@
 * **PERFORMANCE_DEBUG** - when set to true performance logs are shown
 
 #### To do:
-* [ ] Image processing performance logs
+* [ ] Levels midpoint
 * [ ] Edge detection for crop area
     * Edge detection algorithm
     * Neural network
