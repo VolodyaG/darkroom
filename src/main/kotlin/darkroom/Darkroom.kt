@@ -102,8 +102,8 @@ object Darkroom {
         }
 
         return image.adjustBrightnessAndContrast(
-            SettingsPanelProperties.brightness.floatValue() / 2 + 1,
-            SettingsPanelProperties.contrast.floatValue() / 2 + 1
+            SettingsPanelProperties.brightness.intValue(),
+            SettingsPanelProperties.contrast.intValue()
         )
     }
 

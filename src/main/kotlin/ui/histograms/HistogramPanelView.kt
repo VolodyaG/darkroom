@@ -96,7 +96,7 @@ class HistogramPanelView : View() {
                     }
                     row {
                         textfield {
-                            addClass(Styles.luminosityText)
+                            addClass(Styles.sliderTextField)
 
                             bind(HistogramEqualizationProperties.lowLumLevel, false, NumberStringConverter())
 
@@ -124,7 +124,7 @@ class HistogramPanelView : View() {
                             }
                         }
                         textfield {
-                            addClass(Styles.luminosityText)
+                            addClass(Styles.sliderTextField)
 
                             bind(HistogramEqualizationProperties.highLumLevel, false, NumberStringConverter())
 

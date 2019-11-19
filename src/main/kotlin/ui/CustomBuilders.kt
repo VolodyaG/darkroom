@@ -6,6 +6,8 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.HPos
+import javafx.geometry.Insets
+import javafx.geometry.VPos
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.control.TitledPane
@@ -49,7 +51,11 @@ fun Pane.settingsslider(
                     valueProperty().bindBidirectional(property)
                 }
                 textfield {
+                    addClass(Styles.sliderTextField)
                     bind(property, false, NumberStringConverter())
+
+                    GridPane.setMargin(this, Insets(0.0, 0.0, 0.0, 4.0))
+                    GridPane.setValignment(this, VPos.TOP)
                 }
 
                 slider.op()
@@ -88,13 +94,19 @@ fun Pane.colorchannelslider(
             addClass(Styles.centeredAlignment)
 
             slider(-50.0, 50.0) {
+                minorTickCount = 0
+                majorTickUnit = 1.0
+                blockIncrement = 1.0
+                isSnapToTicks = true
+                isShowTickMarks = false
+
                 useMaxWidth = true
                 prefWidth = LEFT_AND_RIGHT_WINDOWS_WIDTH - textInputWidth
 
                 valueProperty().bindBidirectional(channelProperty) // Todo inc by 1
             }
             textfield {
-                maxWidth = textInputWidth
+                addClass(Styles.sliderTextField)
                 bind(channelProperty, false, NumberStringConverter())
             }
         }

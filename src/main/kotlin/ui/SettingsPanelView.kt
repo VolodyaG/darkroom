@@ -122,16 +122,20 @@ class SettingsPanelView : View() {
                     addClass(Styles.boxWithSpacing)
 
                     settingsslider("Contrast", SettingsPanelProperties.contrast, FontAwesomeIcon.ADJUST) {
-                        min = -1.0
-                        max = 1.0
-                        blockIncrement = 0.1
-                        majorTickUnit = 0.5
+                        min = -64.0
+                        max = 64.0
+                        minorTickCount = 15
+                        majorTickUnit = 32.0
+                        blockIncrement = 1.0
+                        isSnapToTicks = true
                     }
                     settingsslider("Brightness", SettingsPanelProperties.brightness, FontAwesomeIcon.SUN_ALT) {
-                        min = -1.0
-                        max = 1.0
-                        blockIncrement = 0.1
-                        majorTickUnit = 0.5
+                        min = -64.0
+                        max = 64.0
+                        minorTickCount = 15
+                        majorTickUnit = 32.0
+                        blockIncrement = 1.0
+                        isSnapToTicks = true
                     }
                 }
             }

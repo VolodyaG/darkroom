@@ -58,11 +58,21 @@ fun BufferedImage.convertToGrayScale(): BufferedImage {
     return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }
 
-fun BufferedImage.adjustBrightnessAndContrast(brightness: Float, contrast: Float): BufferedImage {
-    val contrastFilter = ContrastFilter()
-    contrastFilter.contrast = contrast
-    contrastFilter.brightness = brightness
-    return contrastFilter.filter(this, BufferedImage(width, height, type))
+// https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-4-brightness-adjustment/
+// https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/
+fun BufferedImage.adjustBrightnessAndContrast(brightness: Int, contrast: Int): BufferedImage {
+    val contrastFactor = 259F / 255F * (contrast + 255F) / (259F - contrast)
+    val contrastTable = IntArray(256) {
+        val brightened = PixelUtils.clamp(it + brightness)
+        val contrasted = contrastFactor * (brightened - 128) + 128
+        return@IntArray PixelUtils.clamp(contrasted.toInt())
+    }
+
+    val processCallback = fun(pixels: IntArray) {
+        pixels.forEachIndexed { index, pixelValue -> pixels[index] = contrastTable[pixelValue] }
+    }
+
+    return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }
 
 // Taken from com.jhlabs.image.LevelsFilter

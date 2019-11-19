@@ -23,6 +23,7 @@ class Styles : Stylesheet() {
         val mainContainer by cssclass()
         val boxWithSpacing by cssclass()
         val centeredAlignment by cssclass()
+        val sliderTextField by cssclass()
         val settingNameLabel by cssclass()
         val resizableRectangle by cssclass()
         val magnifierView by cssclass()
@@ -30,7 +31,6 @@ class Styles : Stylesheet() {
         val infoIcon by cssclass()
         val scanButton by cssclass()
         val rangeSlider by cssclass("range-slider")
-        val luminosityText by cssclass()
         val lowThumb by cssclass("low-thumb")
         val highThumb by cssclass("high-thumb")
         val rangeBar by cssclass("range-bar")
@@ -92,6 +92,10 @@ class Styles : Stylesheet() {
             spacing = 5.px
         }
         centeredAlignment {
+            alignment = Pos.CENTER
+        }
+        sliderTextField {
+            maxWidth = 3.4.em
             alignment = Pos.CENTER
         }
 
@@ -178,11 +182,6 @@ class Styles : Stylesheet() {
                 CycleMethod.NO_CYCLE,
                 Stop(0.0, Color.BLACK), Stop(1.0, Color.WHITE)
             )
-        }
-
-        luminosityText {
-            maxWidth = 3.4.em
-            alignment = Pos.CENTER
         }
     }
 }
