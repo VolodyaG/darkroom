@@ -22,13 +22,13 @@
 #### Flags and environment variables:
 * **WITHOUT_SCANNER** - when set to true runs application with default test image
 * **PERFORMANCE_DEBUG** - when set to true performance logs are shown
+* **SELECT_ON_MOUSE_CLICK** - when set to true crop selection area can be drawn via mouse 
 
 #### To do:
 * [ ] Levels midpoint
+* [ ] Handle scanner not connected error
+* [ ] Dispose of scanner instance in app stop
 * [ ] Edge detection for crop area
     * Edge detection algorithm
     * Neural network
 * [ ] Horizon adjustment
-* [ ] UI theme/style:
-    * All buttons style
-    * Single sliders style

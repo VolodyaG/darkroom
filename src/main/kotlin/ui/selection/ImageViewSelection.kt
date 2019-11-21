@@ -1,6 +1,6 @@
 package ui.selection
 
-import javafx.beans.value.ObservableValue
+import isEnvTrue
 import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.image.ImageView
@@ -59,7 +59,7 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
     }
 
     imageView.setOnMousePressed { event ->
-        if (event.isSecondaryButtonDown) {
+        if (event.isSecondaryButtonDown || !"SELECT_ON_MOUSE_CLICK".isEnvTrue()) {
             return@setOnMousePressed
         }
 
@@ -69,7 +69,7 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
     }
 
     imageView.setOnMouseReleased { event ->
-        if (event.isSecondaryButtonDown) {
+        if (event.isSecondaryButtonDown || !"SELECT_ON_MOUSE_CLICK".isEnvTrue()) {
             return@setOnMouseReleased
         }
 
