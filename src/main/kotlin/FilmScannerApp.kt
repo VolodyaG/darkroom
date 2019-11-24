@@ -6,7 +6,7 @@ import ui.*
 class MyApp : App(MainView::class, Styles::class) {
     override fun start(stage: Stage) {
         with(stage) {
-            minWidth = FILM_PREVIEW_WINDOW_WIDTH + LEFT_AND_RIGHT_WINDOWS_WIDTH * 1.7
+            minWidth = FILM_PREVIEW_WINDOW_WIDTH + LEFT_AND_RIGHT_WINDOWS_WIDTH * 1.71
             minHeight = FILM_PREVIEW_WINDOW_HEIGHT + 90
             width = minWidth
             height = minHeight

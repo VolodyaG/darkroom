@@ -32,3 +32,4 @@
     * Edge detection algorithm
     * Neural network
 * [ ] Horizon adjustment
+* [ ] Tooltips

@@ -5,12 +5,12 @@ import darkroom.FilmTypes
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.binding.Bindings
+import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.OverrunStyle
-import javafx.scene.control.ToggleGroup
+import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.histograms.HistogramEqualizationProperties
@@ -19,55 +19,24 @@ class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
 
     override val root = vbox {
-        addClass(Styles.boxWithSpacing)
+        hbox {
+            addClass(Styles.boxWithSpacing)
+            addClass(Styles.centeredAlignment)
+            addClass(Styles.filmTypeContainer)
 
-        squeezebox {
+            radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup) {
+                prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+            }
+            radiobutton(FilmTypes.COLOR_NEGATIVE.displayName, toggleGroup) {
+                prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+            }
+            radiobutton(FilmTypes.POSITIVE.displayName, toggleGroup) {
+                prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
+            }
+        }
+        val squeezeBox = squeezebox {
             fillHeight = false
 
-            fold("General", expanded = true) {
-                vbox {
-                    addClass(Styles.boxWithSpacing)
-
-                    label("Save to") {
-                        addClass(Styles.settingNameLabel)
-                    }
-                    hbox {
-                        addClass(Styles.boxWithSpacing)
-                        addClass(Styles.centeredAlignment)
-
-                        label(SettingsPanelProperties.printsFolder) {
-                            textOverrun = OverrunStyle.LEADING_ELLIPSIS
-                        }
-                        button {
-                            useMaxWidth = true
-                            graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)
-
-                            setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE)
-
-                            action {
-                                chooseDirectory()
-                            }
-                        }
-                    }
-                    label("Mode") {
-                        addClass(Styles.settingNameLabel)
-                    }
-                    hbox {
-                        addClass(Styles.boxWithSpacing)
-                        addClass(Styles.centeredAlignment)
-
-                        radiobutton(FilmTypes.BLACK_AND_WHITE.displayName, toggleGroup) {
-                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
-                        }
-                        radiobutton(FilmTypes.COLOR_NEGATIVE.displayName, toggleGroup) {
-                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
-                        }
-                        radiobutton(FilmTypes.POSITIVE.displayName, toggleGroup) {
-                            prefWidthProperty().bind((parent as HBox).widthProperty().multiply(0.33))
-                        }
-                    }
-                }
-            }
             fold("Crop and Rotate", expanded = true) {
                 vbox {
                     addClass(Styles.boxWithSpacing)
@@ -139,12 +108,65 @@ class SettingsPanelView : View() {
                     }
                 }
             }
+            foldwithprogress("Save folder", false, SettingsPanelProperties.previewLoadInProgress) {
+                hbox {
+                    addClass(Styles.boxWithSpacing)
+
+                    useMaxWidth = true
+                    alignment = Pos.CENTER_LEFT
+
+                    label(SettingsPanelProperties.printsFolder) {
+                        textOverrun = OverrunStyle.LEADING_ELLIPSIS
+                        useMaxWidth = true
+                        hgrow = Priority.ALWAYS
+                    }
+                    button {
+                        graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)
+
+                        setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE)
+
+                        action {
+                            chooseDirectory()
+                        }
+                    }
+                }
+            }
+
+            VBox.setMargin(this, Insets(10.0, 0.0, 0.0, 0.0))
+        }
+        val galleryScrollPane = scrollpane {
+            addClass(Styles.galleryScrollContainer)
+
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            vgrow = Priority.ALWAYS
+
+            tilepane {
+                addClass(Styles.gallery)
+
+                isFitToWidth = true
+
+                children.bind(SettingsPanelProperties.previewImages) {
+                    return@bind imageview(it) {
+                        fitWidth = 80.0
+                        fitHeight = 60.0
+                        isPreserveRatio = true
+                    }
+                }
+            }
+
+            visibleProperty().bind((squeezeBox.getChildList()?.last() as TitledPane).expandedProperty())
+            visibleProperty().onChange { visible ->
+                if (visible) {
+                    runAsync {
+                        SettingsPanelProperties.loadPrintsFolderContents()
+                    }
+                }
+            }
+
+            VBox.setMargin(this, Insets(0.0, 0.0, 5.0, 0.0))
         }
         hbox {
             addClass(Styles.boxWithSpacing)
-
-            vgrow = Priority.ALWAYS
-            alignment = Pos.BOTTOM_RIGHT
 
             button("Scan") {
                 addClass(Styles.scanButton)
@@ -156,6 +178,11 @@ class SettingsPanelView : View() {
                     runAsync {
                         isDisable = true
                         Darkroom.printImage()
+
+                        if (galleryScrollPane.isVisible) {
+                            SettingsPanelProperties.loadLastFromPrintsFolder()
+                        }
+
                         isDisable = false
                     }
                 }

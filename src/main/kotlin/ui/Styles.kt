@@ -27,8 +27,11 @@ class Styles : Stylesheet() {
         val settingNameLabel by cssclass()
         val resizableRectangle by cssclass()
         val magnifierView by cssclass()
+        val filmTypeContainer by cssclass()
         val rotateSlider by cssclass()
         val infoIcon by cssclass()
+        val galleryScrollContainer by cssclass()
+        val gallery by cssclass()
         val scanButton by cssclass()
         val rangeSlider by cssclass("range-slider")
         val lowThumb by cssclass("low-thumb")
@@ -124,6 +127,11 @@ class Styles : Stylesheet() {
     }
 
     private fun initSettingsPanelStyles() {
+        filmTypeContainer {
+            radioButton {
+                textFill = lightGray
+            }
+        }
         settingNameLabel {
             fontStyle = FontPosture.ITALIC
             textFill = Color.DARKGRAY
@@ -133,6 +141,16 @@ class Styles : Stylesheet() {
         }
         infoIcon {
             fontSize = 16.px
+        }
+        galleryScrollContainer {
+            borderWidth = multi(box(0.px, 1.px, 1.px, 1.px))
+            borderColor += box(lightGray)
+            backgroundInsets = multi(box(0.px))
+        }
+        gallery {
+            vgap = 4.px
+            hgap = 4.px
+            padding = box(5.px, 0.px, 5.px, 5.px)
         }
         scanButton {
             backgroundColor += themeBlue
