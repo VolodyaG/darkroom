@@ -1,6 +1,7 @@
 package ui
 
 import darkroom.FilmTypes
+import darkroom.ImageResolutions
 import darkroom.PrintSettings
 import javafx.application.Platform
 import javafx.beans.property.*
@@ -113,6 +114,12 @@ object SettingsPanelProperties {
 
 private class GalleryImageFile(private val file: File, val createdTime: Long) {
     fun toImage(): Image {
-        return Image(file.inputStream(), 80.0, 60.0, true, false)
+        return Image(
+            file.inputStream(),
+            ImageResolutions.GALLERY.width,
+            ImageResolutions.GALLERY.height,
+            true,
+            false
+        )
     }
 }

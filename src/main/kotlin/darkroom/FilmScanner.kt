@@ -10,16 +10,11 @@ object FilmScanner {
         Webcam.setDriver(FilmScannerDriver())
     }
 
-    private val fullScanResolution = Dimension(2592, 1944)
-    private val previewResolution = Dimension(640, 480)
+    private val fullScanResolution = ImageResolutions.FULL.toAwtDimension()
     private val filmScanner: Webcam = findFilmScanner()
 
     private var scanningForNewImageNow = false
     private var fetchedFrame: BufferedImage? = null
-
-    fun getPreviewFrame(): BufferedImage {
-        return scanImage(previewResolution)
-    }
 
     fun scanInFullResolution(): BufferedImage {
         return scanImage(fullScanResolution)
