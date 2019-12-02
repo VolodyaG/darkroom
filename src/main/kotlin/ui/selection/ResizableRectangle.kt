@@ -10,7 +10,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import tornadofx.add
-import tornadofx.addClass
 import tornadofx.onChange
 import tornadofx.style
 
@@ -118,6 +117,12 @@ class ResizableRectangle(
 
     fun setOnAngleChanged(listener: (ObservableValue<out Number>?, oldValue: Number, newValue: Number) -> Unit) {
         angleProperty.addListener(listener)
+    }
+
+    fun getAllRectangles(): List<Rectangle> {
+        val list = mutableListOf<Rectangle>(this)
+        list.addAll(markers)
+        return list
     }
 
     private fun bindRectangleProperties(newRectangle: Rectangle?) {

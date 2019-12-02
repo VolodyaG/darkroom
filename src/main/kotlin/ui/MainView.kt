@@ -1,19 +1,25 @@
 package ui
 
+import darkroom.toFxImage
 import javafx.application.Platform
+import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.HPos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
 import javafx.scene.Group
 import javafx.scene.control.ProgressIndicator
+import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
+import javafx.scene.shape.Rectangle
 import tornadofx.*
 import ui.histograms.HistogramPanelView
 import ui.selection.ResizableRectangle
 import ui.selection.imageviewselection
+import java.awt.Color
+import java.awt.Graphics
 
 class MainView : View("Darkroom") {
     private var mainImageView = imageview()
@@ -39,6 +45,7 @@ class MainView : View("Darkroom") {
                     selectionRectangle = imageviewselection(mainImageView) {
                         addClass(Styles.resizableRectangle)
 
+                        setOnMouseMoved { event -> mainImageView.fireEvent(event) }
                         visibleProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
                         rectangleProperty().bindBidirectional(SettingsPanelProperties.cropArea)
                     }
@@ -94,8 +101,12 @@ class MainView : View("Darkroom") {
     }
 
     init {
+        var snapshot: Image? = null
+
         root.setOnKeyPressed { event ->
             if (event.code == KeyCode.ALT) {
+                snapshot = createMagnifiedSnapshot()
+
                 magnifiedImageView.parent.visibleProperty().set(true)
             }
         }
@@ -109,12 +120,15 @@ class MainView : View("Darkroom") {
         }
 
         mainImageView.setOnMouseMoved { event ->
-            val size = 200.0
-            val image = mainImageView.image
-            val newX = event.x * image.width / mainImageView.boundsInLocal.maxX
-            val newY = event.y * image.height / mainImageView.boundsInLocal.maxY
+            if (snapshot == null) {
+                return@setOnMouseMoved
+            }
 
-            magnifiedImageView.imageProperty().set(mainImageView.image)
+            val size = 200.0
+            val newX = event.x * snapshot!!.width / mainImageView.boundsInLocal.maxX
+            val newY = event.y * snapshot!!.height / mainImageView.boundsInLocal.maxY
+
+            magnifiedImageView.imageProperty().set(snapshot)
             magnifiedImageView.viewport = Rectangle2D(newX - 100, newY - 100, size, size)
 
             magnifiedImageView.parent.translateX =
@@ -122,5 +136,33 @@ class MainView : View("Darkroom") {
             magnifiedImageView.parent.translateY =
                 if (event.y + size >= mainImageView.boundsInLocal.maxY) event.y - size - 10 else event.y + 10
         }
+    }
+
+    private fun createMagnifiedSnapshot(): Image {
+        if (!selectionRectangle.isVisible) {
+            return mainImageView.image
+        }
+
+        val image = SwingFXUtils.fromFXImage(mainImageView.image, null)
+        val xScale = image.width / mainImageView.boundsInLocal.maxX
+        val yScale = image.height / mainImageView.boundsInLocal.maxY
+        val graphics = image.createGraphics()
+        val stroke = selectionRectangle.stroke as javafx.scene.paint.Color
+
+        graphics.color = Color(stroke.red.toFloat(), stroke.green.toFloat(), stroke.blue.toFloat())
+        graphics.drawRectangles(selectionRectangle.getAllRectangles(), xScale, yScale)
+
+        return image.toFxImage()
+    }
+}
+
+fun Graphics.drawRectangles(rectangles: List<Rectangle>, xScaleFactor: Double = 1.0, yScaleFactor: Double = 1.0) {
+    for (rectangle in rectangles) {
+        drawRect(
+            (rectangle.x * xScaleFactor).toInt(),
+            (rectangle.y * yScaleFactor).toInt(),
+            (rectangle.width * xScaleFactor).toInt(),
+            (rectangle.height * yScaleFactor).toInt()
+        )
     }
 }
