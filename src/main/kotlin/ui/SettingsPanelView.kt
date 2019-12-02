@@ -108,7 +108,7 @@ class SettingsPanelView : View() {
                     }
                 }
             }
-            foldwithprogress("Save folder", false, SettingsPanelProperties.previewLoadInProgress) {
+            fold("Save folder", false) {
                 hbox {
                     addClass(Styles.boxWithSpacing)
 
@@ -130,28 +130,40 @@ class SettingsPanelView : View() {
                         }
                     }
                 }
+                disableProperty().bind(SettingsPanelProperties.previewLoadInProgress)
             }
 
             VBox.setMargin(this, Insets(10.0, 0.0, 0.0, 0.0))
         }
-        val galleryScrollPane = scrollpane {
-            addClass(Styles.galleryScrollContainer)
-
-            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        stackpane {
             vgrow = Priority.ALWAYS
 
-            tilepane {
-                addClass(Styles.gallery)
+            scrollpane {
+                addClass(Styles.galleryScrollContainer)
 
-                isFitToWidth = true
+                hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
 
-                children.bind(SettingsPanelProperties.previewImages) {
-                    return@bind imageview(it) {
-                        fitWidth = 80.0
-                        fitHeight = 60.0
-                        isPreserveRatio = true
+                tilepane {
+                    addClass(Styles.gallery)
+
+                    isFitToWidth = true
+
+                    children.bind(SettingsPanelProperties.previewImages) {
+                        imageview(it) {
+                            isPreserveRatio = true
+                        }
                     }
                 }
+
+                disableProperty().bind(SettingsPanelProperties.previewLoadInProgress)
+            }
+            progressindicator {
+                addClass(Styles.galleryLoadProgress)
+
+                progress = ProgressIndicator.INDETERMINATE_PROGRESS
+                alignment = Pos.CENTER
+
+                visibleProperty().bind(SettingsPanelProperties.previewLoadInProgress)
             }
 
             visibleProperty().bind((squeezeBox.getChildList()?.last() as TitledPane).expandedProperty())
@@ -160,6 +172,8 @@ class SettingsPanelView : View() {
                     runAsync {
                         SettingsPanelProperties.loadPrintsFolderContents()
                     }
+                } else {
+                    SettingsPanelProperties.previewImages.clear()
                 }
             }
 
@@ -178,12 +192,11 @@ class SettingsPanelView : View() {
                     runAsync {
                         isDisable = true
                         Darkroom.printImage()
+                        isDisable = false
 
-                        if (galleryScrollPane.isVisible) {
+                        if ((squeezeBox.getChildList()?.last() as TitledPane).isExpanded) {
                             SettingsPanelProperties.loadLastFromPrintsFolder()
                         }
-
-                        isDisable = false
                     }
                 }
             }

@@ -10,6 +10,7 @@ import javafx.scene.image.Image
 import javafx.scene.shape.Rectangle
 import tornadofx.observableListOf
 import tornadofx.onChange
+import tornadofx.runAsync
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
@@ -19,7 +20,7 @@ object SettingsPanelProperties {
 
     var printsFolder = SimpleStringProperty(PrintSettings.folderToSave.canonicalPath)
         private set
-    val previewImages: ObservableList<ImageFile> = FXCollections.synchronizedObservableList(observableListOf())
+    val previewImages: ObservableList<Image> = FXCollections.synchronizedObservableList(observableListOf())
     val previewLoadInProgress = SimpleBooleanProperty(false)
 
     val filmType = SimpleObjectProperty<FilmTypes>()
@@ -35,7 +36,7 @@ object SettingsPanelProperties {
     val contrast = SimpleDoubleProperty()
 
     init {
-        printsFolder.onChange { loadPrintsFolderContents() }
+        printsFolder.onChange { runAsync { loadPrintsFolderContents() } }
 
         setInitialValues()
     }
@@ -53,34 +54,35 @@ object SettingsPanelProperties {
         printsFolder.set(newLocation.canonicalPath)
     }
 
+    @Synchronized
     fun loadPrintsFolderContents() {
         previewLoadInProgress.set(true)
 
-        val imageFiles = getImageFiles()
-        if (imageFiles != null) {
-            Platform.runLater {
-                previewImages.clear()
-                previewImages.addAll(imageFiles)
-            }
+        val allImages = getImageFiles()?.map(GalleryImageFile::toImage) ?: return
+
+        Platform.runLater {
+            previewImages.clear()
+            previewImages.addAll(allImages)
         }
 
         previewLoadInProgress.set(false)
     }
 
+    @Synchronized
     fun loadLastFromPrintsFolder() {
         previewLoadInProgress.set(true)
 
-        val imageFiles = getImageFiles()
-        if (imageFiles != null) {
-            Platform.runLater {
-                previewImages.add(0, imageFiles.get(0))
-            }
+        val firstImage = getImageFiles()?.get(0)?.toImage() ?: return
+
+        Platform.runLater {
+            previewImages.add(0, firstImage)
         }
 
         previewLoadInProgress.set(false)
     }
 
-    private fun getImageFiles(): List<ImageFile>? {
+    @Synchronized
+    private fun getImageFiles(): List<GalleryImageFile>? {
         if (printsFolder.value.isEmpty()) {
             return null
         }
@@ -93,7 +95,7 @@ object SettingsPanelProperties {
             .filter { "png".equals(it.extension) }
             .map {
                 val attributes = Files.readAttributes(it.toPath(), BasicFileAttributes::class.java)
-                return@map ImageFile(it, attributes.creationTime().toMillis())
+                GalleryImageFile(it, attributes.creationTime().toMillis())
             }
             .sortedByDescending { it.createdTime }
     }
@@ -109,4 +111,8 @@ object SettingsPanelProperties {
     }
 }
 
-data class ImageFile(val file: File, val createdTime: Long) : Image(file.inputStream())
+private class GalleryImageFile(private val file: File, val createdTime: Long) {
+    fun toImage(): Image {
+        return Image(file.inputStream(), 80.0, 60.0, true, false)
+    }
+}

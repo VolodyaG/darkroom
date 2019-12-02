@@ -30,6 +30,7 @@ class Styles : Stylesheet() {
         val filmTypeContainer by cssclass()
         val rotateSlider by cssclass()
         val infoIcon by cssclass()
+        val galleryLoadProgress by cssclass()
         val galleryScrollContainer by cssclass()
         val gallery by cssclass()
         val scanButton by cssclass()
@@ -141,6 +142,9 @@ class Styles : Stylesheet() {
         }
         infoIcon {
             fontSize = 16.px
+        }
+        galleryLoadProgress {
+            progressColor = Color.WHITE
         }
         galleryScrollContainer {
             borderWidth = multi(box(0.px, 1.px, 1.px, 1.px))

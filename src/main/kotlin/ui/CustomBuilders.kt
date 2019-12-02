@@ -9,7 +9,6 @@ import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.VPos
 import javafx.scene.control.Label
-import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.Slider
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.*
@@ -146,28 +145,6 @@ fun SqueezeBox.foldwithtoggle(
 
     val fold = fold(expanded = expanded) {
         graphic = gridPane
-    }
-    op.invoke(fold)
-}
-
-fun SqueezeBox.foldwithprogress(
-    title: String,
-    expanded: Boolean = false,
-    progressVisibility: SimpleBooleanProperty? = null,
-    op: TitledPane.() -> Unit = {}
-) {
-    val label = Label(title)
-
-    val progress = ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS)
-    progress.fitToHeight(label)
-    progress.prefWidthProperty().bind(progress.prefHeightProperty())
-    progress.visibleProperty().bindBidirectional(progressVisibility)
-
-    val container = HBox(label, progress)
-    container.addClass(Styles.boxWithSpacing)
-
-    val fold = fold(expanded = expanded) {
-        graphic = container
     }
     op.invoke(fold)
 }
