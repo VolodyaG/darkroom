@@ -148,9 +148,10 @@ class MainView : View("Darkroom") {
         val yScale = image.height / mainImageView.boundsInLocal.maxY
         val graphics = image.createGraphics()
         val stroke = selectionRectangle.stroke as javafx.scene.paint.Color
+        val allRectangles = listOf(listOf(selectionRectangle), selectionRectangle.markers).flatten()
 
         graphics.color = Color(stroke.red.toFloat(), stroke.green.toFloat(), stroke.blue.toFloat())
-        graphics.drawRectangles(selectionRectangle.getAllRectangles(), xScale, yScale)
+        graphics.drawRectangles(allRectangles, xScale, yScale)
 
         return image.toFxImage()
     }

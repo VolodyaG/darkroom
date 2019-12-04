@@ -12,16 +12,16 @@ import kotlin.math.abs
  */
 fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> Unit = {}): ResizableRectangle {
     val rectangle = ResizableRectangle(this)
-    add(rectangle)
+    val centerMarker = rectangle.getMarker(MarkerType.CENTER)
 
-    rectangle.setOnMouseEntered { cursor = Cursor.HAND }
-    rectangle.setOnMouseReleased { cursor = Cursor.HAND }
-    rectangle.setOnMouseExited { cursor = Cursor.DEFAULT }
-    rectangle.setOnMousePressed { event ->
+    centerMarker.setOnMouseEntered { cursor = Cursor.HAND }
+    centerMarker.setOnMouseReleased { cursor = Cursor.HAND }
+    centerMarker.setOnMouseExited { cursor = Cursor.DEFAULT }
+    centerMarker.setOnMousePressed { event ->
         MouseClick.set(event.x, event.y)
         cursor = Cursor.MOVE
     }
-    rectangle.setOnMouseDragged { event ->
+    centerMarker.setOnMouseDragged { event ->
         val newX = rectangle.x + event.x - MouseClick.x
         val newY = rectangle.y + event.y - MouseClick.y
 
@@ -34,6 +34,7 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
 
         MouseClick.set(event.x, event.y)
     }
+
     rectangle.setOnAngleChanged { _, old, new ->
         val oldAngle = old.toInt()
         val newAngle = new.toInt()
