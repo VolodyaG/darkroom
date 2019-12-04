@@ -11,7 +11,9 @@
 * Colors and shadows/highlights adjustments
 * Contrast/brightness control
 * Rotation and crop
+  * Edge detection and automatic crop area search
 * Magnifying glass
+* Gallery display
 
 ![Black-and-white](https://github.com/VolodyaG/darkroom/blob/master/src/main/resources/Screen%201.png)
 
@@ -28,8 +30,5 @@
 * [ ] Levels midpoint
 * [ ] Handle scanner not connected error
 * [ ] Dispose of scanner instance in app stop
-* [ ] Edge detection for crop area
-    * Edge detection algorithm
-    * Neural network
+* [ ] Auto crop area (Neural network)
 * [ ] Horizon adjustment
-* [ ] Tooltips
