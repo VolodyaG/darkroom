@@ -36,6 +36,8 @@ class MainView : View("Darkroom") {
 
                 group {
                     mainImageView = imageview(FilmPreview) {
+                        addClass("mainImageView")
+
                         fitWidth = FILM_PREVIEW_WINDOW_WIDTH
                         fitHeight = FILM_PREVIEW_WINDOW_HEIGHT
                         isPreserveRatio = true

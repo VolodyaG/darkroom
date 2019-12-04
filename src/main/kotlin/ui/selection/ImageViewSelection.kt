@@ -4,7 +4,6 @@ import isEnvTrue
 import javafx.scene.Cursor
 import javafx.scene.Group
 import javafx.scene.image.ImageView
-import tornadofx.add
 import kotlin.math.abs
 
 /**
@@ -40,8 +39,8 @@ fun Group.imageviewselection(imageView: ImageView, op: ResizableRectangle.() -> 
         val newAngle = new.toInt()
         val angleDifference = oldAngle - newAngle
 
-        val xOffset = imageView.layoutBounds.maxX - rectangle.endx()
-        val yOffset = imageView.layoutBounds.maxY - rectangle.endy()
+        val xOffset = imageView.boundsInLocal.width - rectangle.endx()
+        val yOffset = imageView.boundsInLocal.height - rectangle.endy()
 
         if (abs(oldAngle - newAngle) == 180) {
             rectangle.x = xOffset

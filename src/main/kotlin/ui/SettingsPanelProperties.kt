@@ -29,9 +29,10 @@ object SettingsPanelProperties {
     val rotation = SimpleDoubleProperty()
 
     val isCropVisible = SimpleBooleanProperty()
-    val cropArea = SimpleObjectProperty<Rectangle>()
+    val cropArea = SimpleObjectProperty(Rectangle())
     val cropAreaAngle: DoubleProperty
         get() = cropArea.value.rotateProperty()
+    val edgeDetectionInProgress = SimpleBooleanProperty(false)
 
     val brightness = SimpleDoubleProperty()
     val contrast = SimpleDoubleProperty()
@@ -44,10 +45,6 @@ object SettingsPanelProperties {
 
     fun resetAll() {
         setInitialValues()
-    }
-
-    fun resetCropArea() {
-        cropArea.value = Rectangle(7.0, 15.0, 800 - 7.0 - 7.0, 600 - 15.0 - 25.0)
     }
 
     fun changePrintsLocation(newLocation: File) {
@@ -107,8 +104,6 @@ object SettingsPanelProperties {
         isCropVisible.value = false
         brightness.value = 0.0
         contrast.value = 0.0
-
-        resetCropArea()
     }
 }
 

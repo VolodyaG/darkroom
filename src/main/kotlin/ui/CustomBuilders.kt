@@ -54,6 +54,8 @@ fun Pane.settingsslider(
                     addClass(Styles.sliderTextField)
                     bind(property, false, NumberStringConverter())
 
+                    disableProperty().bind(slider.disableProperty())
+
                     GridPane.setMargin(this, Insets(0.0, 0.0, 0.0, 4.0))
                     GridPane.setValignment(this, VPos.TOP)
                 }

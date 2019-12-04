@@ -47,6 +47,9 @@ dependencies {
 
     compile group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
 
+    compile group: 'com.github.downgoon', name: 'MarvinFramework', version: '1.5.5'
+    compile group: 'com.github.downgoon', name: 'MarvinPlugins', version: '1.5.5'
+
     compile group: 'com.jhlabs', name: 'filters', version: '2.0.235-1'
 
     compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'

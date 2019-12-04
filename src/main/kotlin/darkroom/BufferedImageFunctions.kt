@@ -127,3 +127,8 @@ fun BufferedImage.createClippingMask(
 
     return splitAndRunAsync(PixelsImageSplitter(this), processCallback)
 }
+
+fun BufferedImage.scaleTo(width: Double, height: Double): BufferedImage {
+    val scaleFilter = ScaleFilter(width.toInt(), height.toInt())
+    return scaleFilter.filter(this, null)
+}

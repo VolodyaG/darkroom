@@ -8,12 +8,14 @@ import javafx.beans.binding.Bindings
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import tornadofx.*
 import ui.converters.FilmTypeStringConverter
 import ui.histograms.HistogramEqualizationProperties
+import ui.selection.EdgeDetectionService
 
 class SettingsPanelView : View() {
     private val toggleGroup = ToggleGroup()
@@ -43,6 +45,7 @@ class SettingsPanelView : View() {
 
                     settingsslider("Rotate", SettingsPanelProperties.rotation, FontAwesomeIcon.ROTATE_RIGHT) {
                         addClass(Styles.rotateSlider)
+                        disableProperty().bind(SettingsPanelProperties.edgeDetectionInProgress)
 
                         min = -180.0
                         max = 180.0
@@ -63,25 +66,45 @@ class SettingsPanelView : View() {
                     hbox {
                         addClass(Styles.boxWithSpacing)
 
-                        togglebutton("Show crop area") {
-                            selectedProperty().bindBidirectional(SettingsPanelProperties.isCropVisible)
-                        }
-                        button("Reset to default") {
+                        val cropButton = button("Find edges") {
+                            useMaxWidth = true
+                            hgrow = Priority.ALWAYS
+
                             action {
-                                SettingsPanelProperties.resetCropArea()
+                                val imageView = this.scene.lookup(".mainImageView") as ImageView
+
+                                runAsync {
+                                    SettingsPanelProperties.isCropVisible.set(false)
+                                    SettingsPanelProperties.edgeDetectionInProgress.set(true)
+
+                                    val rectangle = EdgeDetectionService.getRectangle(
+                                        imageView, SettingsPanelProperties.rotation.value
+                                    )
+                                    SettingsPanelProperties.cropArea.set(rectangle)
+
+                                    SettingsPanelProperties.isCropVisible.set(true)
+                                    SettingsPanelProperties.edgeDetectionInProgress.set(false)
+                                }
                             }
+                        }
+                        progressindicator {
+                            progress = ProgressIndicator.INDETERMINATE_PROGRESS
+
+                            fitToHeight(cropButton)
+                            visibleProperty().bind(SettingsPanelProperties.edgeDetectionInProgress)
                         }
                         label {
                             addClass(Styles.infoIcon)
 
                             graphic = FontAwesomeIconView(FontAwesomeIcon.INFO_CIRCLE)
                             alignment = Pos.CENTER_RIGHT
-                            hgrow = Priority.ALWAYS
                             useMaxSize = true
 
-                            onHover {
-                                // TODO show tooltip
-                            }
+                            tooltip(
+                                "* Press the button to find crop area automatically\n" +
+                                        "* Drag mouse from corner to corner to draw crop area manually\n" +
+                                        "* Press ESC to dismiss crop area"
+                            )
                         }
                     }
                 }
