@@ -1,13 +1,15 @@
 package ui.selection
 
-import darkroom.*
+import darkroom.ImageResolutions
+import darkroom.performancelog
+import darkroom.scaleTo
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.shape.Rectangle
 import marvin.image.MarvinImage
 import marvin.util.MarvinAttributes
-import org.marvinproject.image.corner.harris.Harris
+import org.marvinproject.image.corner.susan.Susan
 import java.awt.image.BufferedImage
 import java.util.*
 
@@ -57,14 +59,18 @@ object EdgeDetectionService {
             }
         }
 
+        val rectangle = getMeanRectangle(edgePoints)
+        rectangle.rotateProperty().set(rotation)
+        return@performancelog rectangle
+    }
+
+    private fun getMeanRectangle(edgePoints: List<EdgePoint>): Rectangle {
         val x = getMean(edgePoints, EdgeSide.LEFT, EdgePoint::x)
         val y = getMean(edgePoints, EdgeSide.TOP, EdgePoint::y)
         val width = getMean(edgePoints, EdgeSide.RIGHT, EdgePoint::x) - x
         val height = getMean(edgePoints, EdgeSide.BOTTOM, EdgePoint::y) - y
 
-        val rectangle = Rectangle(x, y, width, height)
-        rectangle.rotateProperty().set(rotation)
-        return@performancelog rectangle
+        return Rectangle(x, y, width, height)
     }
 
     private fun getMean(points: List<EdgePoint>, side: EdgeSide, getter: EdgePoint.() -> Double): Double {
@@ -83,14 +89,11 @@ object EdgeDetectionService {
             image, BufferedImage(image.width.toInt(), image.height.toInt(), BufferedImage.TYPE_INT_RGB)
         )
 
-        val adjustedImage = bufferedImage
-            .scaleTo(ImageResolutions.AUTO_CROP.width, ImageResolutions.AUTO_CROP.height)
-            .adjustLevels(highLevel = 127F)
-            .createClippingMask(highlightsMask = true)
+        val adjustedImage = bufferedImage.scaleTo(ImageResolutions.AUTO_CROP.width, ImageResolutions.AUTO_CROP.height)
 
         val bwImage = MarvinImage(adjustedImage)
         val attr = MarvinAttributes()
-        val edgeDetectionPlugin = Harris()
+        val edgeDetectionPlugin = Susan()
         edgeDetectionPlugin.load()
         edgeDetectionPlugin.process(bwImage, null, attr)
 

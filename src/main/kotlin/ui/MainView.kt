@@ -16,10 +16,10 @@ import javafx.scene.layout.RowConstraints
 import javafx.scene.shape.Rectangle
 import tornadofx.*
 import ui.histograms.HistogramPanelView
-import ui.selection.Dimensions
 import ui.selection.ResizableRectangle
 import ui.selection.imageviewselection
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Graphics
 
 class MainView : View("Darkroom") {
@@ -88,7 +88,7 @@ class MainView : View("Darkroom") {
 
                             runLater {
                                 val dimensions = getImageCropDimensions(image)
-                                text = "${dimensions.horizontal}x${dimensions.vertical}px"
+                                text = "${dimensions.width}x${dimensions.height}px"
                             }
                         }
                     }
@@ -158,18 +158,18 @@ class MainView : View("Darkroom") {
         }
     }
 
-    private fun getImageCropDimensions(image: Image): Dimensions {
+    private fun getImageCropDimensions(image: Image): Dimension {
         if (SettingsPanelProperties.isCropVisible.value) {
             val area = SettingsPanelProperties.cropArea.value
             val scaleFactor = image.width / FILM_PREVIEW_WINDOW_WIDTH
 
-            return Dimensions(
+            return Dimension(
                 (area.width * scaleFactor).toInt(),
                 (area.height * scaleFactor).toInt()
             )
         }
 
-        return Dimensions(image.width.toInt(), image.height.toInt())
+        return Dimension(image.width.toInt(), image.height.toInt())
     }
 
     private fun createMagnifiedSnapshot(): Image {
