@@ -12,8 +12,6 @@ import tornadofx.SqueezeBoxStyles.Companion.squeezeBox
 
 class Styles : Stylesheet() {
     private val middleGray = Color.rgb(71, 71, 71)
-    private val darkGray = Color.rgb(51, 51, 51)
-
     private val themeBlue = Color.rgb(45, 168, 209)
     private val mainBackground = Color.rgb(77, 77, 77)
 
@@ -27,6 +25,7 @@ class Styles : Stylesheet() {
         val settingNameLabel by cssclass()
         val resizableRectangle by cssclass()
         val magnifierView by cssclass()
+        val dimensionsLabel by cssclass()
         val filmTypeContainer by cssclass()
         val rotateSlider by cssclass()
         val infoIcon by cssclass()
@@ -124,6 +123,9 @@ class Styles : Stylesheet() {
             backgroundColor += Color.WHITE
             borderWidth += box(3.px)
             borderColor += box(themeBlue)
+        }
+        dimensionsLabel {
+            textFill = lightGray
         }
     }
 

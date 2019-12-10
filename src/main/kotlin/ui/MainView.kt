@@ -16,6 +16,7 @@ import javafx.scene.layout.RowConstraints
 import javafx.scene.shape.Rectangle
 import tornadofx.*
 import ui.histograms.HistogramPanelView
+import ui.selection.Dimensions
 import ui.selection.ResizableRectangle
 import ui.selection.imageviewselection
 import java.awt.Color
@@ -71,6 +72,23 @@ class MainView : View("Darkroom") {
                                     parent.getChildList()?.addAll(selectionRectangle.markers)
                                     parent.getChildList()?.add(selectionRectangle)
                                 }
+                            }
+                        }
+                    }
+                    label {
+                        addClass(Styles.dimensionsLabel)
+
+                        FilmPreview.onChange { image ->
+                            if (image == null) {
+                                return@onChange
+                            }
+
+                            layoutXProperty().set(mainImageView.layoutBounds.maxX - width)
+                            layoutYProperty().set(mainImageView.layoutBounds.maxY + 10.0)
+
+                            runLater {
+                                val dimensions = getImageCropDimensions(image)
+                                text = "${dimensions.horizontal}x${dimensions.vertical}px"
                             }
                         }
                     }
@@ -138,6 +156,20 @@ class MainView : View("Darkroom") {
             magnifiedImageView.parent.translateY =
                 if (event.y + size >= mainImageView.boundsInLocal.maxY) event.y - size - 10 else event.y + 10
         }
+    }
+
+    private fun getImageCropDimensions(image: Image): Dimensions {
+        if (SettingsPanelProperties.isCropVisible.value) {
+            val area = SettingsPanelProperties.cropArea.value
+            val scaleFactor = image.width / FILM_PREVIEW_WINDOW_WIDTH
+
+            return Dimensions(
+                (area.width * scaleFactor).toInt(),
+                (area.height * scaleFactor).toInt()
+            )
+        }
+
+        return Dimensions(image.width.toInt(), image.height.toInt())
     }
 
     private fun createMagnifiedSnapshot(): Image {

@@ -150,6 +150,9 @@ object Darkroom {
     }
 
     private fun applyClippingMask(image: BufferedImage): BufferedImage {
+        if (!HistogramEqualizationProperties.applyLevelsAdjustment.value) {
+            return image
+        }
         if (!HistogramEqualizationProperties.highLightMaskEnabled() && !HistogramEqualizationProperties.shadowsMaskEnabled()) {
             return image
         }
