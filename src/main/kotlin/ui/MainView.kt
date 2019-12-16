@@ -6,9 +6,9 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.HPos
 import javafx.geometry.Rectangle2D
 import javafx.geometry.VPos
-import javafx.scene.Group
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Priority
@@ -16,6 +16,7 @@ import javafx.scene.layout.RowConstraints
 import javafx.scene.shape.Rectangle
 import tornadofx.*
 import ui.histograms.HistogramPanelView
+import ui.selection.EdgeDetectionService
 import ui.selection.ResizableRectangle
 import ui.selection.imageviewselection
 import java.awt.Color
@@ -23,9 +24,9 @@ import java.awt.Dimension
 import java.awt.Graphics
 
 class MainView : View("Darkroom") {
-    private var mainImageView = imageview()
+    private lateinit var mainImageView: ImageView
+    private lateinit var selectionRectangle: ResizableRectangle
     private val magnifiedImageView = imageview()
-    private var selectionRectangle: ResizableRectangle = ResizableRectangle(Group())
 
     override val root = gridpane {
         addClass(Styles.mainContainer)
@@ -62,21 +63,23 @@ class MainView : View("Darkroom") {
 
                         visibleProperty().bind(SettingsPanelProperties.saveInProgress)
                         visibleProperty().onChange {
-                            val selected = it;
+                            val visible = it;
 
                             Platform.runLater {
-                                if (selected) {
+                                if (visible) {
                                     parent.getChildList()?.removeAll(selectionRectangle.markers)
                                     parent.getChildList()?.remove(selectionRectangle)
                                 } else {
-                                    parent.getChildList()?.addAll(selectionRectangle.markers)
                                     parent.getChildList()?.add(selectionRectangle)
+                                    parent.getChildList()?.addAll(selectionRectangle.markers)
                                 }
                             }
                         }
                     }
                     label {
                         addClass(Styles.dimensionsLabel)
+
+                        visibleProperty().bind(SettingsPanelProperties.saveInProgress.not())
 
                         FilmPreview.onChange { image ->
                             if (image == null) {

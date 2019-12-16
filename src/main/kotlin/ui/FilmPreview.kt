@@ -9,6 +9,8 @@ import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
 object FilmPreview : SimpleObjectProperty<Image>() {
+    private val timerTask: TimerTask
+
     private var currentFrame: BufferedImage? = null
         set(newValue) {
             field = newValue
@@ -17,12 +19,16 @@ object FilmPreview : SimpleObjectProperty<Image>() {
 
 
     init {
-        Timer(true).scheduleAtFixedRate(500, 500) {
+        timerTask = Timer(true).scheduleAtFixedRate(500, 500) {
             val newFrame = getPreviewFrame()
             if (currentFrame != newFrame) {
                 currentFrame = newFrame
             }
         }
+    }
+
+    fun dispose() {
+        timerTask.cancel()
     }
 
     private fun getPreviewFrame(): BufferedImage? {

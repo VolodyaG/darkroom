@@ -67,17 +67,20 @@ object EdgeDetectionService {
     private fun getMeanRectangle(edgePoints: List<EdgePoint>): Rectangle {
         val x = getMean(edgePoints, EdgeSide.LEFT, EdgePoint::x)
         val y = getMean(edgePoints, EdgeSide.TOP, EdgePoint::y)
-        val width = getMean(edgePoints, EdgeSide.RIGHT, EdgePoint::x) - x
-        val height = getMean(edgePoints, EdgeSide.BOTTOM, EdgePoint::y) - y
+
+        val width = getMean(edgePoints, EdgeSide.RIGHT, EdgePoint::x, ImageResolutions.DISPLAY.width) - x
+        val height = getMean(edgePoints, EdgeSide.BOTTOM, EdgePoint::y, ImageResolutions.DISPLAY.height) - y
 
         return Rectangle(x, y, width, height)
     }
 
-    private fun getMean(points: List<EdgePoint>, side: EdgeSide, getter: EdgePoint.() -> Double): Double {
+    private fun getMean(
+        points: List<EdgePoint>, side: EdgeSide, getter: EdgePoint.() -> Double, defaultOnNone: Double = 0.0
+    ): Double {
         val oneSidePoints = points.filter { point -> point.side == side }
 
         if (oneSidePoints.isEmpty()) {
-            return 0.0
+            return defaultOnNone
         }
 
         val sum = oneSidePoints.fold(0.0) { sum, point -> sum + point.getter() }

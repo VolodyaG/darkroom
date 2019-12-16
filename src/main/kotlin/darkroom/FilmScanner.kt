@@ -20,6 +20,12 @@ object FilmScanner {
         return scanImage(fullScanResolution)
     }
 
+    fun dispose() {
+        if (filmScanner.isOpen) {
+            filmScanner.close()
+        }
+    }
+
     private fun scanImage(resolution: Dimension): BufferedImage {
         if (scanningForNewImageNow && fetchedFrame != null) {
             return fetchedFrame!!

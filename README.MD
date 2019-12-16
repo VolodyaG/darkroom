@@ -29,6 +29,5 @@
 #### To do:
 * [ ] Levels midpoint
 * [ ] Handle scanner not connected error
-* [ ] Dispose of scanner instance in app stop
 * [ ] Auto crop area (Neural network)
 * [ ] Horizon adjustment

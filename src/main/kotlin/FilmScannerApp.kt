@@ -1,3 +1,4 @@
+import darkroom.FilmScanner
 import javafx.application.Application
 import javafx.stage.Stage
 import tornadofx.App
@@ -12,6 +13,11 @@ class MyApp : App(MainView::class, Styles::class) {
             height = minHeight
 
             super.start(this)
+
+            stage.setOnCloseRequest {
+                FilmPreview.dispose()
+                FilmScanner.dispose()
+            }
         }
     }
 }
@@ -23,11 +29,3 @@ fun main(args: Array<String>) {
 fun String.isEnvTrue(): Boolean {
     return System.getenv(this) == true.toString()
 }
-
-/*
-* ToDo features list
-* Preview/Processing
-* Grayscale gradient
-* Presets?
-*
-* */
